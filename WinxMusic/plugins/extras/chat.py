@@ -78,7 +78,7 @@ async def ai(_: Client, message: Message):
             model="chatgpt-4o-latest",
             messages=prompt,
             temperature=0.8,
-            max_tokens=256,
+            max_tokens=1000,
             stream=False
         )
 
