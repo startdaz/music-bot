@@ -55,7 +55,7 @@ async def init():
         LOGGER("WinxMusic").error(
             "Please ensure the voice call in your log group is active."
         )
-        sys.exit()
+        exit()
 
     await Winx.decorators()
     LOGGER("WinxMusic").info("WinxMusic Started Successfully")
