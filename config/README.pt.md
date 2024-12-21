@@ -28,7 +28,7 @@ obrigatórias para que o bot funcione e ative as funcionalidades básicas.
    /set_video_limit no Telegram. Padrão para 3 chats.
 4. `SERVER_PLAYLIST_LIMIT`: Limite máximo para usuários salvarem playlists no servidor do bot. Padrão para 30.
 5. `PLAYLIST_FETCH_LIMIT`: Limite máximo para buscar faixas da playlist de links do YouTube, Spotify, Apple. Padrão para
-   25.
+    25.
 6. `CLEANMODE_MINS`: Tempo após o qual o bot apagará suas mensagens antigas dos chats. Padrão para 5 min.
 7. `SUPPORT_CHANNEL`: Se você tiver um canal para seu bot de música, insira o link do canal aqui.
 8. `SUPPORT_GROUP`: Se você tiver um grupo de suporte para o bot, insira o link do grupo aqui.

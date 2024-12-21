@@ -154,7 +154,12 @@ async def save_message_history(_, message: Message):
 
         assistant = await get_assistant(message.chat.id)
         async for message in assistant.get_chat_history(message.chat.id, limit=100):
-            if message.text and message.from_user.id != app.id and not message.text.startswith(tuple(PREFIXES)):
+            if (
+                    message.text and
+                    message.from_user and
+                    message.from_user.id != app.id and
+                    not message.text.startswith(tuple(PREFIXES))
+            ):
                 context["conversation_history"].append({
                     "role": "user",
                     "content": message.text,

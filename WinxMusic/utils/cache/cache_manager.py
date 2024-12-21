@@ -2,7 +2,6 @@ import collections
 import time
 
 
-
 class CacheManager:
     def __init__(self, max_size=100, ttl=None):
         """
@@ -11,14 +10,14 @@ class CacheManager:
         :param max_size: Maximum number of items in the cache before removing the oldest (default 100).
         :param ttl: Time-to-live for items in the cache in seconds (default None, no expiration).
         """
-        #LOGGER(__name__).info(f"Initializing cache with max_size: {max_size} and ttl: {ttl}")
+        # LOGGER(__name__).info(f"Initializing cache with max_size: {max_size} and ttl: {ttl}")
         self.cache = {}
         self.max_size = max_size
         self.ttl = ttl
         self.order = collections.OrderedDict()  # To keep track of the insertion order
 
     def set(self, key, value):
-        #LOGGER(__name__).info(f"Setting cache key: {key}")
+        # LOGGER(__name__).info(f"Setting cache key: {key}")
         current_time = time.time()
         if len(self.cache) >= self.max_size:
             # Evict the oldest item when the cache reaches its maximum size
@@ -28,7 +27,7 @@ class CacheManager:
         self.order[key] = current_time  # Keeps track of insertion order
 
     def get(self, key):
-        #LOGGER(__name__).info(f"Getting cache key: {key}")
+        # LOGGER(__name__).info(f"Getting cache key: {key}")
         current_time = time.time()
         if key in self.cache:
             item = self.cache[key]
@@ -42,13 +41,13 @@ class CacheManager:
         return None
 
     def delete(self, key):
-        #LOGGER(__name__).info(f"Deleting cache key: {key}")
+        # LOGGER(__name__).info(f"Deleting cache key: {key}")
         if key in self.cache:
             del self.cache[key]
             del self.order[key]
 
     def clear(self):
-        #LOGGER(__name__).info("Clearing cache")
+        # LOGGER(__name__).info("Clearing cache")
         self.cache.clear()
         self.order.clear()
 
