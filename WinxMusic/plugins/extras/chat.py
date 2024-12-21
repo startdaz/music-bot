@@ -10,7 +10,7 @@ from WinxMusic import app
 from WinxMusic.__main__ import cache_manager
 from WinxMusic.core.bot import GROUP_CONTEXT_KEY, USER_CONTEXT_KEY
 from WinxMusic.utils import get_assistant
-from config import BANNED_USERS
+from config import BANNED_USERS, PREFIXES
 
 client = OpenAI(
     api_key=config.OPENAI_API_KEY
@@ -19,7 +19,7 @@ client = OpenAI(
 
 @app.on_message(filters.regex("winx", re.IGNORECASE) & ~BANNED_USERS)
 async def ai(_: Client, message: Message):
-    if not message.text:
+    if not message.text or message.text.startswith(PREFIXES):  # Ignora comandos
         return
 
     username = message.from_user.first_name
@@ -104,6 +104,9 @@ async def ai(_: Client, message: Message):
     filters.reply & ~filters.command(config.PREFIXES) & ~filters.private & ~BANNED_USERS
 )
 async def handle_reply(_: Client, message: Message):
+    if not message.text or message.text.startswith(PREFIXES):
+        return
+
     me = await app.get_me()
     if (
             message.reply_to_message and
@@ -137,7 +140,7 @@ async def handle_reply(_: Client, message: Message):
 # filter command
 @app.on_message(filters.group & (filters.chat([config.AI_GROUP_ID])) & ~BANNED_USERS)
 async def save_message_history(_, message: Message):
-    if not message.text or message.from_user.id == app.id:
+    if not message.text or message.text.startswith(PREFIXES) or message.from_user.id == app.id:
         return
 
     me = await app.get_me()
