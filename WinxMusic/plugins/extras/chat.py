@@ -19,7 +19,7 @@ client = OpenAI(
 
 @app.on_message(filters.regex("winx", re.IGNORECASE) & ~BANNED_USERS)
 async def ai(_: Client, message: Message):
-    if not message.text or message.text.startswith(tuple(PREFIXES)):
+    if message.text and message.text.startswith(tuple(PREFIXES)):
         return
 
     username = message.from_user.first_name
@@ -104,7 +104,7 @@ async def ai(_: Client, message: Message):
     filters.reply & ~filters.command(config.PREFIXES) & ~filters.private & ~BANNED_USERS
 )
 async def handle_reply(_: Client, message: Message):
-    if not message.text or message.text.startswith(tuple(PREFIXES)):
+    if message.text and message.text.startswith(tuple(PREFIXES)):
         return
 
     me = await app.get_me()
@@ -140,7 +140,7 @@ async def handle_reply(_: Client, message: Message):
 # filter command
 @app.on_message(filters.group & (filters.chat([config.AI_GROUP_ID])) & ~BANNED_USERS)
 async def save_message_history(_, message: Message):
-    if not message.text or message.text.startswith(tuple(PREFIXES)) or message.from_user.id == app.id:
+    if message.text and message.text.startswith(tuple(PREFIXES)):
         return
 
     me = await app.get_me()
