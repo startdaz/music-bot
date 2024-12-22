@@ -110,11 +110,11 @@ class Call:
             pass
 
     async def skip_stream(
-        self,
-        chat_id: int,
-        link: str,
-        video: Union[bool, str] = None,
-        image: Union[bool, str] = None,
+            self,
+            chat_id: int,
+            link: str,
+            video: Union[bool, str] = None,
+            image: Union[bool, str] = None,
     ):
         assistant = await group_assistant(self, chat_id)
         audio_stream_quality = await get_audio_bitrate(chat_id)
@@ -250,12 +250,12 @@ class Call:
             raise AssistantErr(_["call_3"].format(type(e).__name__))
 
     async def join_call(
-        self,
-        chat_id: int,
-        original_chat_id: int,
-        link,
-        video: Union[bool, str] = None,
-        image: Union[bool, str] = None,
+            self,
+            chat_id: int,
+            original_chat_id: int,
+            link,
+            video: Union[bool, str] = None,
+            image: Union[bool, str] = None,
     ):
         assistant = await group_assistant(self, chat_id)
         audio_stream_quality = await get_audio_bitrate(chat_id)
@@ -622,6 +622,14 @@ class Call:
                 if not isinstance(update, StreamAudioEnded):
                     return
                 await self.change_stream(client, update.chat_id)
+
+    def __getattr__(self, name):
+        if not self.calls:
+            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        first_call = self.calls[0]
+        if hasattr(first_call, name):
+            return getattr(first_call, name)
+        raise AttributeError(f"'{type(first_call).__name__}' object has no attribute '{name}'")
 
 
 Winx = Call()
