@@ -1,5 +1,4 @@
 import asyncio
-import glob
 import os
 import random
 import re
@@ -20,7 +19,9 @@ def cookies():
     folder_path = f"{os.getcwd()}/cookies"
     txt_files = [file for file in os.listdir(folder_path) if file.endswith(".txt")]
     if not txt_files:
-        raise FileNotFoundError("No Cookies found in cookies directory make sure your cookies file written  .txt file")
+        raise FileNotFoundError(
+            "No Cookies found in cookies directory make sure your cookies file written  .txt file"
+        )
     cookie_txt_file = random.choice(txt_files)
     cookie_txt_file = os.path.join(folder_path, cookie_txt_file)
     return cookie_txt_file
@@ -80,7 +81,7 @@ class YouTube:
                         return entity.url
         if offset in (None,):
             return None
-        return text[offset: offset + length]
+        return text[offset : offset + length]
 
     async def details(self, link: str, videoid: Union[bool, str] = None):
         if videoid:
@@ -267,10 +268,10 @@ class YouTube:
         return formats_available, link
 
     async def slider(
-            self,
-            link: str,
-            query_type: int,
-            videoid: Union[bool, str] = None,
+        self,
+        link: str,
+        query_type: int,
+        videoid: Union[bool, str] = None,
     ):
         if videoid:
             link = self.base + link
@@ -285,15 +286,15 @@ class YouTube:
         return title, duration_min, thumbnail, vidid
 
     async def download(
-            self,
-            link: str,
-            mystic,
-            video: Union[bool, str] = None,
-            videoid: Union[bool, str] = None,
-            songaudio: Union[bool, str] = None,
-            songvideo: Union[bool, str] = None,
-            format_id: Union[bool, str] = None,
-            title: Union[bool, str] = None,
+        self,
+        link: str,
+        mystic,
+        video: Union[bool, str] = None,
+        videoid: Union[bool, str] = None,
+        songaudio: Union[bool, str] = None,
+        songvideo: Union[bool, str] = None,
+        format_id: Union[bool, str] = None,
+        title: Union[bool, str] = None,
     ) -> str:
         if videoid:
             link = self.base + link
