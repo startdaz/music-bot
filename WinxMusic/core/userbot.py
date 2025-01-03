@@ -52,7 +52,7 @@ class Userbot(Client):
             assistant_ids.append(get_me.id)
             client.name = f"{get_me.first_name} {get_me.last_name or ''}".strip()
 
-            await client.join_chat("@cinewinx")
+            await client.join_chat("@cinewinxy")
             await client.join_chat("@cinewinxcoments")
 
         except Exception as e:
