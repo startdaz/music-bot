@@ -173,8 +173,6 @@ clean = {}
 
 autoclean = []
 
-AI_GROUP_ID = int(getenv("AI_GROUP_ID", "-1001736087411"))
-
 # Images
 
 START_IMG_URL = getenv(

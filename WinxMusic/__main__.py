@@ -59,8 +59,6 @@ async def init():
     await Winx.decorators()
     LOGGER("WinxMusic").info("WinxMusic Started Successfully")
 
-    chat = await app.get_chat(config.AI_GROUP_ID)
-
     await idle()
     await app.stop()
     await userbot.stop()
