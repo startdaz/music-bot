@@ -24,5 +24,6 @@ gunicorn
 youtube-search-python
 yt-dlp
 openai
-git+https://github.com/KurimuzonAkuma/pyrogram
+kurigram==2.1.35
+#git+https://github.com/KurimuzonAkuma/pyrogram
 git+https://github.com/Vivekkumar-IN/pykeyboard
