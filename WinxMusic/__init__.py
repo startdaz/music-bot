@@ -11,10 +11,7 @@ from .logging import LOGGER
 dirr()
 
 # # Check Git Updates
-# git()
-
-# Save cookies in txt
-# save_cookies()
+git()
 
 # Initialize Memory DB
 dbb()
