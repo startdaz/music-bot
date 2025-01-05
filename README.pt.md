@@ -61,7 +61,7 @@ ___
 # 🎶 Configurações do Flora Music Bot
 
 Para iniciar a configuração do Flora Music Bot, consulte as instruções
-detalhadas [aqui](https://github.com/gabrielmaialva33/flora-music-bot/blob/master/config/README.pt.md).
+detalhadas [aqui](https://github.com/gabrielmaialva33/flora-music-bot/blob/main/config/README.pt.md).
 
 ---
 
