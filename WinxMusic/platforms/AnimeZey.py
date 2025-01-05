@@ -4,6 +4,7 @@ import os
 import random
 import re
 import string
+import subprocess
 import time
 from datetime import datetime, timedelta
 from typing import Optional, TypedDict, List, Dict, Union, Any
@@ -49,7 +50,7 @@ class AnimeZey:
         self.session: Optional[aiohttp.ClientSession] = None
         self.session_headers: Dict[str, str] = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0",
+                          "Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0",
             "Content-Type": "application/json",
         }
         self.timeout: int = 60
@@ -61,12 +62,12 @@ class AnimeZey:
         return self.session
 
     async def request(
-        self, endpoint: str, method: str, data: Optional[Dict[str, Any]] = None
+            self, endpoint: str, method: str, data: Optional[Dict[str, Any]] = None
     ) -> Union[Dict[str, Any], str, None]:
         session = await self._get_session()
         try:
             async with session.request(
-                method, f"{self.base_url}{endpoint}", json=data
+                    method, f"{self.base_url}{endpoint}", json=data
             ) as response:
                 response.raise_for_status()
                 content_type = response.headers.get("Content-Type", "")
@@ -83,14 +84,14 @@ class AnimeZey:
             return None
 
     async def search_anime(
-        self, query: str, page_token: Optional[str] = None
+            self, query: str, page_token: Optional[str] = None
     ) -> Union[Dict[str, Any], str, None]:
         return await self.request(
             "/0:search", "POST", {"q": query, "page_token": page_token, "page_index": 0}
         )
 
     async def search_movie(
-        self, query: str, page_token: Optional[str] = None
+            self, query: str, page_token: Optional[str] = None
     ) -> Optional[SearchMovieResponse]:
         response: Union[Dict[str, Any], str, None] = await self.request(
             "/1:search",
@@ -268,6 +269,31 @@ class AnimeZey:
             print(f"Error getting duration: {e}")
             duration = 0
         return duration
+
+    async def get_stream_duration(self, link: str) -> str:
+        try:
+            cmd = [
+                "ffprobe",
+                "-v", "error",
+                "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1",
+                link
+            ]
+
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            duration = result.stdout.decode().strip()
+
+            if not duration:
+                return "desconhecido"
+
+            duration_seconds = float(duration)
+            minutes = int(duration_seconds // 60)
+            seconds = int(duration_seconds % 60)
+            duration_str = f"{minutes}:{seconds:02d}"
+            return duration_str
+        except Exception as e:
+            print(f"Erro ao obter duração: {e}")
+            return "Erro ao calcular duração"
 
     async def get_filepath(self, file_name: str) -> str:
         sanitized_file_name: str = re.sub(r'[\/\?<>\\:\*\|"]', "_", file_name)

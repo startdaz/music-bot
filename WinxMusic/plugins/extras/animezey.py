@@ -6,6 +6,7 @@ from pyrogram.types import Message, InlineKeyboardButton, CallbackQuery, InlineK
 
 from WinxMusic import app, Platform, LOGGER
 from WinxMusic.utils import get_lang
+from WinxMusic.utils.logger import play_logs
 from WinxMusic.utils.stream.stream import stream
 from config import BANNED_USERS, PREFIXES
 from strings import get_command, get_string
@@ -209,36 +210,58 @@ async def view_movie(_client: Client, callback_query: CallbackQuery):
     name = file.get("name", "<b>Sem título</b>")
     link = file.get("link", "#")
 
-    if await Platform.animezey.download(name, link, callback_query.message):
-        dur = await Platform.animezey.get_duration(name)
-        file_path = await Platform.animezey.get_filepath(name)
-        details = {
-            "title": name,
-            "dur": dur,
-            "path": file_path,
-            "link": link,
-        }
-
     try:
         await stream(
             _,
             mystic=callback_query.message,
             user_id=user_id,
-            result=details,
+            result={"title": name, "link": Platform.animezey.base_url + link},
             chat_id=callback_query.message.chat.id,
             user_name=callback_query.from_user.first_name,
             original_chat_id=callback_query.message.chat.id,
-            streamtype="animezey",
+            video=True,
+            streamtype="index",
         )
     except Exception as e:
         ex_type = type(e).__name__
         if ex_type == "AssistantErr":
             err = e
         else:
-            err = _["general_3"].format(ex_type)
             LOGGER(__name__).error("An error occurred", exc_info=True)
+            err = _["general_3"].format(ex_type)
         return await callback_query.message.edit(err)
-    return await callback_query.message.delete()
+    return await play_logs(callback_query.message, streamtype="M3u8 or Index Link")
+
+    # if await Platform.animezey.download(name, link, callback_query.message):
+    #     dur = await Platform.animezey.get_duration(name)
+    #     file_path = await Platform.animezey.get_filepath(name)
+    #     details = {
+    #         "title": name,
+    #         "dur": dur,
+    #         "path": file_path,
+    #         "link": link,
+    #     }
+    #
+    # try:
+    #     await stream(
+    #         _,
+    #         mystic=callback_query.message,
+    #         user_id=user_id,
+    #         result=details,
+    #         chat_id=callback_query.message.chat.id,
+    #         user_name=callback_query.from_user.first_name,
+    #         original_chat_id=callback_query.message.chat.id,
+    #         streamtype="animezey",
+    #     )
+    # except Exception as e:
+    #     ex_type = type(e).__name__
+    #     if ex_type == "AssistantErr":
+    #         err = e
+    #     else:
+    #         err = _["general_3"].format(ex_type)
+    #         LOGGER(__name__).error("An error occurred", exc_info=True)
+    #     return await callback_query.message.edit(err)
+    # return await callback_query.message.delete()
 
 
 class EqInlineKeyboardButton(InlineKeyboardButton):
