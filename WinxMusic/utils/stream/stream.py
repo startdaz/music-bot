@@ -505,9 +505,15 @@ async def stream(
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
     elif streamtype == "index":
-        link = result
-        title = "Index or M3u8 Link"
-        duration_min = "URL stream"
+        if isinstance(result, dict):
+            title = (result["title"]).title()
+            link = result["link"]
+        else:
+            link = result
+
+        if title is None:
+            title = "Index or M3u8 Link"
+        duration_min = await Platform.animezey.get_stream_duration(link)
         if await is_active_chat(chat_id):
             await put_queue_index(
                 chat_id,
@@ -547,7 +553,7 @@ async def stream(
             run = await app.send_photo(
                 original_chat_id,
                 photo=config.STREAM_IMG_URL,
-                caption=_["stream_2"].format(user_name),
+                caption=_["stream_1"].format(title, link, duration_min, user_name),
                 reply_markup=InlineKeyboardMarkup(button),
             )
             db[chat_id][0]["mystic"] = run
