@@ -167,7 +167,7 @@ async def queued_tracks(_client: Client, callback_query: CallbackQuery, _):
     basic[videoid] = False
     buttons = queue_back_markup(_, what)
     med = InputMediaPhoto(
-        media="https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/master/assets/queue_img.png",
+        media="https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/queue_img.png",
         caption=_["queue_1"],
     )
     await callback_query.edit_message_media(media=med)
