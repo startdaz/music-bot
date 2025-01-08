@@ -145,7 +145,10 @@ TG_VIDEO_FILESIZE_LIMIT = int(
 SET_CMDS = getenv("SET_CMDS", "False")
 
 # You'll need a Pyrogram String Session for these vars. Generate String from our session generator bot @WinxStringBot
-STRING_SESSIONS = list(map(str.strip, getenv("STRING_SESSIONS", None).split(",")))
+# Get the environment variable with a default value of an empty string
+raw_sessions = getenv("STRING_SESSIONS")
+# Split the sessions only if raw_sessions is not empty
+STRING_SESSIONS = list(map(str.strip, raw_sessions.split(","))) if raw_sessions else []
 
 # TOKEN_DATA = getenv("TOKEN_DATA", None)
 
@@ -244,7 +247,7 @@ SPOTIFY_PLAYLIST_IMG_URL = getenv(
 
 def time_to_seconds(time):
     stringt = str(time)
-    return sum(int(x) * 60**i for i, x in enumerate(reversed(stringt.split(":"))))
+    return sum(int(x) * 60 ** i for i, x in enumerate(reversed(stringt.split(":"))))
 
 
 def seconds_to_time(seconds):
@@ -286,8 +289,8 @@ if GITHUB_REPO:
 
 if PING_IMG_URL:
     if (
-        PING_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/ping_img.png"
+            PING_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/ping_img.png"
     ):
         if not re.match("(?:http|https)://", PING_IMG_URL):
             print(
@@ -297,8 +300,8 @@ if PING_IMG_URL:
 
 if PLAYLIST_IMG_URL:
     if (
-        PLAYLIST_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/playlist_img.png"
+            PLAYLIST_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/playlist_img.png"
     ):
         if not re.match("(?:http|https)://", PLAYLIST_IMG_URL):
             print(
@@ -308,8 +311,8 @@ if PLAYLIST_IMG_URL:
 
 if GLOBAL_IMG_URL:
     if (
-        GLOBAL_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/global_stats_img.png"
+            GLOBAL_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/global_stats_img.png"
     ):
         if not re.match("(?:http|https)://", GLOBAL_IMG_URL):
             print(
@@ -319,8 +322,8 @@ if GLOBAL_IMG_URL:
 
 if STATS_IMG_URL:
     if (
-        STATS_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/stats_img.png"
+            STATS_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/stats_img.png"
     ):
         if not re.match("(?:http|https)://", STATS_IMG_URL):
             print(
@@ -330,8 +333,8 @@ if STATS_IMG_URL:
 
 if TELEGRAM_AUDIO_URL:
     if (
-        TELEGRAM_AUDIO_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/telegram_audio_img.png"
+            TELEGRAM_AUDIO_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/telegram_audio_img.png"
     ):
         if not re.match("(?:http|https)://", TELEGRAM_AUDIO_URL):
             print(
@@ -341,8 +344,8 @@ if TELEGRAM_AUDIO_URL:
 
 if STREAM_IMG_URL:
     if (
-        STREAM_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/stream_img.png"
+            STREAM_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/stream_img.png"
     ):
         if not re.match("(?:http|https)://", STREAM_IMG_URL):
             print(
@@ -352,8 +355,8 @@ if STREAM_IMG_URL:
 
 if SOUNCLOUD_IMG_URL:
     if (
-        SOUNCLOUD_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/soundcloud_img.png"
+            SOUNCLOUD_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/soundcloud_img.png"
     ):
         if not re.match("(?:http|https)://", SOUNCLOUD_IMG_URL):
             print(
@@ -363,8 +366,8 @@ if SOUNCLOUD_IMG_URL:
 
 if YOUTUBE_IMG_URL:
     if (
-        YOUTUBE_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/youtube_img.png"
+            YOUTUBE_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/youtube_img.png"
     ):
         if not re.match("(?:http|https)://", YOUTUBE_IMG_URL):
             print(
@@ -374,8 +377,8 @@ if YOUTUBE_IMG_URL:
 
 if TELEGRAM_VIDEO_URL:
     if (
-        TELEGRAM_VIDEO_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/telegram_video_img.png"
+            TELEGRAM_VIDEO_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/telegram_video_img.png"
     ):
         if not re.match("(?:http|https)://", TELEGRAM_VIDEO_URL):
             print(
