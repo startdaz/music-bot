@@ -61,7 +61,7 @@ class Userbot(Client):
                 client.add_handler(handler, group)
 
             await client.join_chat("@cinewinxy")
-            await client.join_chat("@cinewinxcoments")
+            # await client.join_chat("@cinewinxcoments")
             await client.join_chat("@canalclubdaswinx")
 
         except Exception as e:
