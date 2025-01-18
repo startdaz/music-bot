@@ -1,4 +1,5 @@
 from os import path
+from typing import Any
 
 from yt_dlp import YoutubeDL
 
@@ -21,7 +22,7 @@ class SoundCloud:
         else:
             return False
 
-    async def download(self, url):
+    async def download(self, url) -> bool | tuple[dict[str, str | Any], str]:
         d = YoutubeDL(self.opts)
         try:
             info = d.extract_info(url)
