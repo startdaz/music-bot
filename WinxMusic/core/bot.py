@@ -35,18 +35,12 @@ import config
 
 from ..logging import LOGGER
 
-GROUP_CONTEXT_KEY = "group_context:{}"
-USER_CONTEXT_KEY = "user_context:{}"
-
 
 class WinxBot(Client):
-    def __init__(self: "WinxBot", name: str):
+    def __init__(self, *args, **kwargs):
+        LOGGER(__name__).info("Starting Bot...")
 
-        super().__init__(name)
-        self.username = None
-        self.id = None
-        self.name = None
-        self.mention = None
+        super().__init__(*args, **kwargs)
         self.loaded_plug_counts = 0
 
     def on_message(self, filters=None, group=0):
@@ -56,16 +50,14 @@ class WinxBot(Client):
                 try:
                     await func(client, message)
                 except FloodWait as e:
-                    LOGGER(__name__).warning(
-                        f"FloodWait: Sleeping for {e.value} seconds."
-                    )
+                    LOGGER(__name__).warning(f"FloodWait: Sleeping for {e.value} seconds.")
                     await asyncio.sleep(e.value)
                 except (
-                    ChatWriteForbidden,
-                    ChatSendMediaForbidden,
-                    ChatSendPhotosForbidden,
-                    MessageNotModified,
-                    MessageIdInvalid,
+                        ChatWriteForbidden,
+                        ChatSendMediaForbidden,
+                        ChatSendPhotosForbidden,
+                        MessageNotModified,
+                        MessageIdInvalid,
                 ):
                     pass
                 except StopPropagation:
@@ -74,11 +66,7 @@ class WinxBot(Client):
                     date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     user_id = message.from_user.id if message.from_user else "Unknown"
                     chat_id = message.chat.id if message.chat else "Unknown"
-                    chat_username = (
-                        f"@{message.chat.username}"
-                        if message.chat.username
-                        else "Private Group"
-                    )
+                    chat_username = f"@{message.chat.username}" if message.chat.username else "Private Group"
                     command = (
                         " ".join(message.command)
                         if hasattr(message, "command")
@@ -198,7 +186,7 @@ class WinxBot(Client):
         LOG_GROUP_ID = (
             f"@{config.LOG_GROUP_ID}"
             if isinstance(config.LOG_GROUP_ID, str)
-            and not config.LOG_GROUP_ID.startswith("@")
+               and not config.LOG_GROUP_ID.startswith("@")
             else config.LOG_GROUP_ID
         )
 
@@ -211,8 +199,7 @@ class WinxBot(Client):
                     ),
                 )
                 await self.set_bot_commands(
-                    private_commands + owner_commands,
-                    scope=BotCommandScopeChat(chat_id=owner_id),
+                    private_commands + owner_commands, scope=BotCommandScopeChat(chat_id=owner_id)
                 )
             except Exception:
                 pass
@@ -239,9 +226,7 @@ class WinxBot(Client):
             spec.loader.exec_module(module)
             self.loaded_plug_counts += 1
         except Exception as e:
-            LOGGER(__name__).error(
-                f"Failed to load {module_path}: {e}\n\n", exc_info=True
-            )
+            LOGGER(__name__).error(f"Failed to load {module_path}: {e}\n\n", exc_info=True)
             exit()
 
         return module
@@ -257,9 +242,7 @@ class WinxBot(Client):
                 utils = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(utils)
             except Exception as e:
-                LOGGER(__name__).error(
-                    f"Failed to load 'utils' module: {e}", exc_info=True
-                )
+                LOGGER(__name__).error(f"Failed to load 'utils' module: {e}", exc_info=True)
 
         for root, _, files in os.walk(base_dir):
             for file in files:
