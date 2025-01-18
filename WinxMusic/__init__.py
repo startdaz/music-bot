@@ -6,6 +6,29 @@ from WinxMusic.misc import dbb, heroku, sudo
 from .core.cookies import save_cookies
 
 from .logging import LOGGER
+import config
+
+# Bot Client
+app = WinxBot(
+    "FloraMusic",
+    api_id=config.API_ID,
+    api_hash=config.API_HASH,
+    bot_token=config.BOT_TOKEN,
+    sleep_threshold=240,
+    max_concurrent_transmissions=6,
+    workers=50,
+)
+
+# Assistant Client
+userbot = Userbot()
+
+for i, session in enumerate(config.STRING_SESSIONS, start=1):
+    userbot.add(
+        f"FloraString{i}",
+        api_id=config.API_ID,
+        api_hash=config.API_HASH,
+        session_string=session.strip(),
+    )
 
 # Directories
 dirr()
@@ -21,11 +44,6 @@ heroku()
 
 # Load Sudo Users from DB
 sudo()
-# Bot Client
-app = WinxBot("WinxMusic")
-
-# Assistant Client
-userbot = Userbot()
 
 from .platforms import PlaTForms
 
