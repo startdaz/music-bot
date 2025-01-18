@@ -6,7 +6,7 @@ uvloop.install()
 
 import sys
 
-from pyrogram import Client, StopPropagation, errors
+from pyrogram import Client, errors
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.types import BotCommand
 from pyrogram.types import BotCommandScopeAllChatAdministrators
@@ -175,7 +175,7 @@ class WinxBot(Client):
         LOG_GROUP_ID = (
             f"@{config.LOG_GROUP_ID}"
             if isinstance(config.LOG_GROUP_ID, str)
-               and not config.LOG_GROUP_ID.startswith("@")
+            and not config.LOG_GROUP_ID.startswith("@")
             else config.LOG_GROUP_ID
         )
 
