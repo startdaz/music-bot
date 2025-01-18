@@ -1,23 +1,35 @@
-import asyncio
-
 import uvloop
 
 uvloop.install()
 
-import sys
+import asyncio
 
-from pyrogram import Client, errors
+import os
+import importlib.util
+
+import traceback
+from datetime import datetime
+from functools import wraps
+
+from pyrogram import Client, StopPropagation, errors
 from pyrogram.enums import ChatMemberStatus
-from pyrogram.types import BotCommand
-from pyrogram.types import BotCommandScopeAllChatAdministrators
-from pyrogram.types import BotCommandScopeAllGroupChats
-from pyrogram.types import BotCommandScopeAllPrivateChats
-from pyrogram.types import BotCommandScopeChat
-from pyrogram.types import BotCommandScopeChatMember
-from pyrogram.errors import ChatSendPhotosForbidden
-from pyrogram.errors import ChatWriteForbidden
-from pyrogram.errors import FloodWait
-from pyrogram.errors import MessageIdInvalid
+from pyrogram.types import (
+    BotCommand,
+    BotCommandScopeAllChatAdministrators,
+    BotCommandScopeAllGroupChats,
+    BotCommandScopeAllPrivateChats,
+    BotCommandScopeChat,
+    BotCommandScopeChatMember,
+)
+from pyrogram.errors import (
+    FloodWait,
+    MessageNotModified,
+    MessageIdInvalid,
+    ChatSendMediaForbidden,
+    ChatSendPhotosForbidden,
+    ChatWriteForbidden,
+)
+from pyrogram.handlers import MessageHandler
 
 import config
 
@@ -28,68 +40,65 @@ USER_CONTEXT_KEY = "user_context:{}"
 
 
 class WinxBot(Client):
-    def __init__(self: "WinxBot"):
+    def __init__(self: "WinxBot", name: str):
 
+        super().__init__(name)
         self.username = None
         self.id = None
         self.name = None
         self.mention = None
+        self.loaded_plug_counts = 0
 
-        LOGGER(__name__).info(f"Starting Bot")
-        super().__init__(
-            "WinxMusic",
-            api_id=config.API_ID,
-            api_hash=config.API_HASH,
-            bot_token=config.BOT_TOKEN,
-            sleep_threshold=240,
-            max_concurrent_transmissions=5,
-            workers=50,
-        )
+    def on_message(self, filters=None, group=0):
+        def decorator(func):
+            @wraps(func)
+            async def wrapper(client, message):
+                try:
+                    await func(client, message)
+                except FloodWait as e:
+                    LOGGER(__name__).warning(f"FloodWait: Sleeping for {e.value} seconds.")
+                    await asyncio.sleep(e.value)
+                except (
+                        ChatWriteForbidden,
+                        ChatSendMediaForbidden,
+                        ChatSendPhotosForbidden,
+                        MessageNotModified,
+                        MessageIdInvalid,
+                ):
+                    pass
+                except StopPropagation:
+                    raise
+                except Exception as e:
+                    date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    user_id = message.from_user.id if message.from_user else "Unknown"
+                    chat_id = message.chat.id if message.chat else "Unknown"
+                    chat_username = f"@{message.chat.username}" if message.chat.username else "Private Group"
+                    command = (
+                        " ".join(message.command)
+                        if hasattr(message, "command")
+                        else message.text
+                    )
+                    error_trace = traceback.format_exc()
+                    error_message = (
+                        f"**Error:** {type(e).__name__}\n"
+                        f"**Date:** {date_time}\n"
+                        f"**Chat ID:** {chat_id}\n"
+                        f"**Chat Username:** {chat_username}\n"
+                        f"**User ID:** {user_id}\n"
+                        f"**Command/Text:** {command}\n"
+                        f"**Traceback:**\n{error_trace}"
+                    )
+                    await self.send_message(config.LOG_GROUP_ID, error_message)
+                    try:
+                        await self.send_message(config.OWNER_ID[0], error_message)
+                    except Exception:
+                        pass
 
-    async def edit_message_text(self, *args, **kwargs):
-        try:
-            return await super().edit_message_text(*args, **kwargs)
-        except FloodWait as e:
-            time = int(e.value)
-            await asyncio.sleep(time)
-            if time < 25:
-                return await self.edit_message_text(self, *args, **kwargs)
-        except MessageIdInvalid:
-            pass
+            handler = MessageHandler(wrapper, filters)
+            self.add_handler(handler, group)
+            return func
 
-    async def send_message(self, *args, **kwargs):
-        if kwargs.get("send_direct", False):
-            kwargs.pop("send_direct", None)
-            return await super().send_message(*args, **kwargs)
-
-        try:
-            return await super().send_message(*args, **kwargs)
-        except FloodWait as e:
-            time = int(e.value)
-            await asyncio.sleep(time)
-            if time < 25:
-                return await self.send_message(self, *args, **kwargs)
-        except ChatWriteForbidden:
-            chat_id = kwargs.get("chat_id") or args[0]
-            if chat_id:
-                await self.leave_chat(chat_id)
-
-    async def send_photo(self, *args, **kwargs):
-        try:
-            return await super().send_photo(*args, **kwargs)
-        except FloodWait as e:
-            time = int(e.value)
-            await asyncio.sleep(time)
-            if time < 25:
-                return await self.send_photo(self, *args, **kwargs)
-        except ChatSendPhotosForbidden:
-            chat_id = kwargs.get("chat_id") or args[0]
-            if chat_id:
-                await self.send_message(
-                    chat_id,
-                    "I don't have the right to send photos in this chat, leaving now..",
-                )
-                await self.leave_chat(chat_id)
+        return decorator
 
     async def start(self):
         await super().start()
@@ -110,12 +119,20 @@ class WinxBot(Client):
             )
             LOGGER(__name__).error("Error details:", exc_info=True)
             exit()
-
         if config.SET_CMDS == str(True):
             try:
                 await self._set_default_commands()
             except Exception as e:
                 LOGGER(__name__).warning("Failed to set commands:", exc_info=True)
+
+        try:
+            a = await self.get_chat_member(config.LOG_GROUP_ID, "me")
+            if a.status != ChatMemberStatus.ADMINISTRATOR:
+                LOGGER(__name__).error("Please promote bot as admin in logger group")
+                exit()
+        except Exception:
+            pass
+        LOGGER(__name__).info(f"FloraBot started as {self.name}")
 
     async def _set_default_commands(self):
         private_commands = [
@@ -175,7 +192,7 @@ class WinxBot(Client):
         LOG_GROUP_ID = (
             f"@{config.LOG_GROUP_ID}"
             if isinstance(config.LOG_GROUP_ID, str)
-            and not config.LOG_GROUP_ID.startswith("@")
+               and not config.LOG_GROUP_ID.startswith("@")
             else config.LOG_GROUP_ID
         )
 
@@ -188,29 +205,72 @@ class WinxBot(Client):
                     ),
                 )
                 await self.set_bot_commands(
-                    private_commands + owner_commands,
-                    scope=BotCommandScopeChat(chat_id=owner_id),
+                    private_commands + owner_commands, scope=BotCommandScopeChat(chat_id=owner_id)
                 )
-            except Exception as e:
-                LOGGER(__name__).warning(
-                    "Failed to set owner commands for user %s:", owner_id, exc_info=True
-                )
+            except Exception:
+                pass
 
-        else:
-            pass
+    def load_plugin(self, file_path: str, base_dir: str, utils=None):
+        file_name = os.path.basename(file_path)
+        module_name, ext = os.path.splitext(file_name)
+        if module_name.startswith("__") or ext != ".py":
+            return None
+
+        relative_path = os.path.relpath(file_path, base_dir).replace(os.sep, ".")
+        module_path = f"{os.path.basename(base_dir)}.{relative_path[:-3]}"
+
+        spec = importlib.util.spec_from_file_location(module_path, file_path)
+        module = importlib.util.module_from_spec(spec)
+        module.logger = LOGGER(module_path)
+        module.app = self
+        module.Config = config
+
+        if utils:
+            module.utils = utils
+
         try:
-            a = await self.get_chat_member(config.LOG_GROUP_ID, self.id)
-            if a.status != ChatMemberStatus.ADMINISTRATOR:
-                LOGGER(__name__).error("Please promote bot as admin in logger group")
-                sys.exit()
-        except Exception:
-            pass
-        get_me = await self.get_me()
-        if get_me.last_name:
-            self.name = get_me.first_name + " " + get_me.last_name
-        else:
-            self.name = get_me.first_name
-        LOGGER(__name__).info(f"MusicBot started as {self.name}")
+            spec.loader.exec_module(module)
+            self.loaded_plug_counts += 1
+        except Exception as e:
+            LOGGER(__name__).error(f"Failed to load {module_path}: {e}\n\n", exc_info=True)
+            exit()
+
+        return module
+
+    def load_plugins_from(self, base_folder: str):
+        base_dir = os.path.abspath(base_folder)
+        utils_path = os.path.join(base_dir, "utils.py")
+        utils = None
+
+        if os.path.exists(utils_path) and os.path.isfile(utils_path):
+            try:
+                spec = importlib.util.spec_from_file_location("utils", utils_path)
+                utils = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(utils)
+            except Exception as e:
+                LOGGER(__name__).error(f"Failed to load 'utils' module: {e}", exc_info=True)
+
+        for root, _, files in os.walk(base_dir):
+            for file in files:
+                if file.endswith(".py") and not file == "utils.py":
+                    file_path = os.path.join(root, file)
+                    mod = self.load_plugin(file_path, base_dir, utils)
+                    yield mod
+
+    async def run_shell_command(self, command: list):
+        process = await asyncio.create_subprocess_exec(
+            *command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        stdout, stderr = await process.communicate()
+
+        return {
+            "returncode": process.returncode,
+            "stdout": stdout.decode().strip() if stdout else None,
+            "stderr": stderr.decode().strip() if stderr else None,
+        }
 
     async def stop(self):
         LOGGER(__name__).info("Bot is shutting down")
