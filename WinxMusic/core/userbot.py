@@ -54,6 +54,7 @@ class Userbot(Client):
 
             await client.join_chat("@cinewinxy")
             await client.join_chat("@cinewinxcoments")
+            await client.join_chat("@canalclubdaswinx")
 
         except Exception as e:
             LOGGER(__name__).error(
