@@ -6,7 +6,7 @@ uvloop.install()
 
 import sys
 
-from pyrogram import Client
+from pyrogram import Client, StopPropagation, errors
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.types import BotCommand
 from pyrogram.types import BotCommandScopeAllChatAdministrators
@@ -104,12 +104,12 @@ class WinxBot(Client):
                 config.LOG_GROUP_ID,
                 text=f"🚀 <u><b>{self.mention} Bot Iniciado :</b></u>\n\n🆔 <b>ID</b>: <code>{self.id}</code>\n📛 <b>Nome</b>: {self.name}\n🔗 <b>Nome de usuário:</b> @{self.username}",
             )
-        except Exception as e:
+        except (errors.ChannelInvalid, errors.PeerIdInvalid):
             LOGGER(__name__).error(
                 "Bot failed to access the log group. Ensure the bot is added and promoted as admin."
             )
             LOGGER(__name__).error("Error details:", exc_info=True)
-            sys.exit()
+            exit()
 
         if config.SET_CMDS == str(True):
             try:
@@ -175,7 +175,7 @@ class WinxBot(Client):
         LOG_GROUP_ID = (
             f"@{config.LOG_GROUP_ID}"
             if isinstance(config.LOG_GROUP_ID, str)
-            and not config.LOG_GROUP_ID.startswith("@")
+               and not config.LOG_GROUP_ID.startswith("@")
             else config.LOG_GROUP_ID
         )
 
