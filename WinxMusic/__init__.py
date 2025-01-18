@@ -22,7 +22,7 @@ heroku()
 # Load Sudo Users from DB
 sudo()
 # Bot Client
-app = WinxBot()
+app = WinxBot("WinxMusic")
 
 # Assistant Client
 userbot = Userbot()
