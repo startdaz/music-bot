@@ -1,5 +1,6 @@
 asyncio
 aiohttp
+async-lru
 beautifulsoup4
 dnspython
 ffmpeg-python
@@ -24,6 +25,6 @@ gunicorn
 youtube-search-python
 yt-dlp
 openai
-kurigram==2.1.35
+kurigram==2.1.36
 #git+https://github.com/KurimuzonAkuma/pyrogram
 git+https://github.com/Vivekkumar-IN/pykeyboard
