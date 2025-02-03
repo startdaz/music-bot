@@ -60,9 +60,9 @@ class Userbot(Client):
             for handler, group in self.handlers:
                 client.add_handler(handler, group)
 
-            await client.join_chat("@cinewinxy")
+            # await client.join_chat("@cinewinxy")
             # await client.join_chat("@cinewinxcoments")
-            await client.join_chat("@canalclubdaswinx")
+            # await client.join_chat("@canalclubdaswinx")
 
         except Exception as e:
             LOGGER(__name__).error(
