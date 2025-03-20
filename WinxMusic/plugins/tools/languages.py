@@ -6,7 +6,7 @@ from WinxMusic import app
 from WinxMusic.utils.database import get_lang, set_lang
 from WinxMusic.utils.decorators import actual_admin_cb, language, language_cb
 from config import BANNED_USERS
-from strings import get_command, get_string, languages_present
+from strings import command, get_string, languages_present
 
 
 # Languages Available
@@ -35,10 +35,7 @@ def lanuages_keyboard(_):
     return keyboard
 
 
-LANGUAGE_COMMAND = get_command("LANGUAGE_COMMAND")
-
-
-@app.on_message(filters.command(LANGUAGE_COMMAND) & filters.group & ~BANNED_USERS)
+@app.on_message(command("LANGUAGE_COMMAND") & filters.group & ~BANNED_USERS)
 @language
 async def langs_command(client, message: Message, _):
     keyboard = lanuages_keyboard(_)
