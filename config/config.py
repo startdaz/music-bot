@@ -8,59 +8,50 @@ from pyrogram import filters
 load_dotenv()
 
 # Get it from my.telegram.org
+
 API_ID = int(getenv("API_ID", ""))
+
 API_HASH = getenv("API_HASH")
 
 ## Get it from @Botfather in Telegram.
 BOT_TOKEN = getenv("BOT_TOKEN")
 
-# Get it from https://openai.com
-OPENAI_API_KEY = getenv("OPENAI_API_KEY", "")
-
-# You can paste your cookies to https://batbin.me, save them, and get a link to paste here
-COOKIE_LINK = getenv("COOKIE_LINK", None)
-
 # Database to save your chats and stats... Get MongoDB:-  https://telegra.ph/How-To-get-Mongodb-URI-04-06
 MONGO_DB_URI = getenv("MONGO_DB_URI", None)
 
-# Clan mode for voice chats. If you want to enable this feature, set it to True.
 CLEANMODE_DELETE_MINS = int(
-    getenv("CLEANMODE_MINS", "999")
-)  # Remember to give value in Seconds
+    getenv("CLEANMODE_MINS", "5")
+)  # Remember to give value in Minute
 
 # Custom max audio(music) duration for voice chat. set DURATION_LIMIT in variables with your own time(mins), Default to 60 mins.
+
 DURATION_LIMIT_MIN = int(
     getenv("DURATION_LIMIT", "300")
 )  # Remember to give value in Minutes
 
-# Enable / Disable external plugins
-EXTRA_PLUGINS = getenv("EXTRA_PLUGINS", "False")
+EXTRA_PLUGINS = getenv("EXTRA_PLUGINS", False)
 
-# Fill True if you want to load extra plugins from external repo
+# Fill False if you Don't want to load extra plugins
+
+
 EXTRA_PLUGINS_REPO = getenv(
     "EXTRA_PLUGINS_REPO",
     "https://github.com/gabrielmaialva33/winx-extra-plugin",
 )
-
 # Fill here the external plugins repo where plugins that you want to load
-EXTRA_PLUGINS_FOLDER = getenv("EXTRA_PLUGINS_FOLDER", "plugins")
-# Your folder name in your extra plugins repo where all plugins stored
-
 
 # Duration Limit for downloading Songs in MP3 or MP4 format from bot
 SONG_DOWNLOAD_DURATION = int(
     getenv("SONG_DOWNLOAD_DURATION_LIMIT", "90")
 )  # Remember to give value in Minutes
 
-# You'll need a Private Group ID for this.
-LOG_GROUP_ID = int(getenv("LOG_GROUP_ID", ""))
+# You'll need a Group ID or USERNAME for this.
+LOG_GROUP_ID = getenv("LOG_GROUP_ID", "").strip()
 
 # Your User ID.
 OWNER_ID = list(
-    map(int, getenv("OWNER_ID", "1307574219").split())
+    map(int, getenv("OWNER_ID", "8024757695").split())
 )  # Input type must be interger
-
-# make your bots privacy from telegra.ph and put your url here
 
 PRIVACY_LINK = getenv(
     "PRIVACY_LINK",
@@ -75,12 +66,16 @@ HEROKU_APP_NAME = getenv("HEROKU_APP_NAME")
 
 # For customized or modified Repository
 UPSTREAM_REPO = getenv(
-    "UPSTREAM_REPO", "https://github.com/gabrielmaialva33/flora-music-bot"
+    "UPSTREAM_REPO",
+    "https://github.com/gabrielmaialva33/flora-music-bot",
 )
 UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "main")
 
 # GIT TOKEN ( if your edited repo is private)
-GIT_TOKEN = getenv("GIT_TOKEN", "")
+GIT_TOKEN = getenv(
+    "GIT_TOKEN",
+    "",
+)
 
 # Only  Links formats are  accepted for this Var value.
 SUPPORT_CHANNEL = getenv(
@@ -108,9 +103,7 @@ YOUTUBE_DOWNLOAD_EDIT_SLEEP = int(getenv("YOUTUBE_EDIT_SLEEP", "3"))
 TELEGRAM_DOWNLOAD_EDIT_SLEEP = int(getenv("TELEGRAM_EDIT_SLEEP", "5"))
 
 # Your Github Repo.. Will be shown on /start Command
-GITHUB_REPO = getenv(
-    "GITHUB_REPO", "https://github.com/gabrielmaialva33/flora-music-bot"
-)
+GITHUB_REPO = getenv("GITHUB_REPO", "https://github.com/gabrielmaialva33/flora-music-bot")
 
 # Spotify Client.. Get it from https://developer.spotify.com/dashboard
 SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID", "530a978df3084f8b916e3f512a8c8bb1")
@@ -144,13 +137,12 @@ TG_VIDEO_FILESIZE_LIMIT = int(
 # Refer to https://i.postimg.cc/Bbg3LQTG/image.png
 SET_CMDS = getenv("SET_CMDS", "False")
 
-# You'll need a Pyrogram String Session for these vars. Generate String from our session generator bot @WinxStringBot
+# You'll need a Pyrogram String Session for these vars. Generate String from our session generator bot @YukkiStringBot
 # Get the environment variable with a default value of an empty string
 raw_sessions = getenv("STRING_SESSIONS")
+
 # Split the sessions only if raw_sessions is not empty
 STRING_SESSIONS = list(map(str.strip, raw_sessions.split(","))) if raw_sessions else []
-
-# TOKEN_DATA = getenv("TOKEN_DATA", None)
 
 # __        __     _ _  __  __ ___  __  __ _    _  ___ _    _____ _____
 # \ \      / /__ _| | |/ _|/ _|_ _||  \/  | |  | |__ \ |  | |_   _|_   _|
@@ -162,9 +154,8 @@ STRING_SESSIONS = list(map(str.strip, raw_sessions.split(","))) if raw_sessions 
 ### DONT TOUCH or EDIT codes after this line
 BANNED_USERS = filters.user()
 YTDOWNLOADER = 1
-
 LOG = 2
-LOG_FILE_NAME = "Winxlogs.txt"
+LOG_FILE_NAME = "WinxLogs.txt"
 TEMP_DB_FOLDER = "tempdb"
 PREFIXES = ["/", "!", "%", ",", ".", "@", "#"]
 
@@ -247,7 +238,7 @@ SPOTIFY_PLAYLIST_IMG_URL = getenv(
 
 def time_to_seconds(time):
     stringt = str(time)
-    return sum(int(x) * 60**i for i, x in enumerate(reversed(stringt.split(":"))))
+    return sum(int(x) * 60 ** i for i, x in enumerate(reversed(stringt.split(":"))))
 
 
 def seconds_to_time(seconds):
@@ -258,6 +249,10 @@ def seconds_to_time(seconds):
 
 DURATION_LIMIT = int(time_to_seconds(f"{DURATION_LIMIT_MIN}:00"))
 SONG_DOWNLOAD_DURATION_LIMIT = int(time_to_seconds(f"{SONG_DOWNLOAD_DURATION}:00"))
+
+# Check if LOG_GROUP_ID is a numeric ID
+if LOG_GROUP_ID.lstrip("-").isdigit():
+    LOG_GROUP_ID = int(LOG_GROUP_ID)
 
 if SUPPORT_CHANNEL:
     if not re.match("(?:http|https)://", SUPPORT_CHANNEL):
@@ -289,8 +284,8 @@ if GITHUB_REPO:
 
 if PING_IMG_URL:
     if (
-        PING_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/ping_img.png"
+            PING_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/ping_img.png"
     ):
         if not re.match("(?:http|https)://", PING_IMG_URL):
             print(
@@ -300,8 +295,8 @@ if PING_IMG_URL:
 
 if PLAYLIST_IMG_URL:
     if (
-        PLAYLIST_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/playlist_img.png"
+            PLAYLIST_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/playlist_img.png"
     ):
         if not re.match("(?:http|https)://", PLAYLIST_IMG_URL):
             print(
@@ -311,8 +306,8 @@ if PLAYLIST_IMG_URL:
 
 if GLOBAL_IMG_URL:
     if (
-        GLOBAL_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/global_stats_img.png"
+            GLOBAL_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/global_stats_img.png"
     ):
         if not re.match("(?:http|https)://", GLOBAL_IMG_URL):
             print(
@@ -322,8 +317,8 @@ if GLOBAL_IMG_URL:
 
 if STATS_IMG_URL:
     if (
-        STATS_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/stats_img.png"
+            STATS_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/stats_img.png"
     ):
         if not re.match("(?:http|https)://", STATS_IMG_URL):
             print(
@@ -333,8 +328,8 @@ if STATS_IMG_URL:
 
 if TELEGRAM_AUDIO_URL:
     if (
-        TELEGRAM_AUDIO_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/telegram_audio_img.png"
+            TELEGRAM_AUDIO_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/telegram_audio_img.png"
     ):
         if not re.match("(?:http|https)://", TELEGRAM_AUDIO_URL):
             print(
@@ -344,8 +339,8 @@ if TELEGRAM_AUDIO_URL:
 
 if STREAM_IMG_URL:
     if (
-        STREAM_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/stream_img.png"
+            STREAM_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/stream_img.png"
     ):
         if not re.match("(?:http|https)://", STREAM_IMG_URL):
             print(
@@ -355,8 +350,8 @@ if STREAM_IMG_URL:
 
 if SOUNCLOUD_IMG_URL:
     if (
-        SOUNCLOUD_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/soundcloud_img.png"
+            SOUNCLOUD_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/soundcloud_img.png"
     ):
         if not re.match("(?:http|https)://", SOUNCLOUD_IMG_URL):
             print(
@@ -366,8 +361,8 @@ if SOUNCLOUD_IMG_URL:
 
 if YOUTUBE_IMG_URL:
     if (
-        YOUTUBE_IMG_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/youtube_img.png"
+            YOUTUBE_IMG_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/youtube_img.png"
     ):
         if not re.match("(?:http|https)://", YOUTUBE_IMG_URL):
             print(
@@ -377,8 +372,8 @@ if YOUTUBE_IMG_URL:
 
 if TELEGRAM_VIDEO_URL:
     if (
-        TELEGRAM_VIDEO_URL
-        != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/telegram_video_img.png"
+            TELEGRAM_VIDEO_URL
+            != "https://raw.githubusercontent.com/gabrielmaialva33/flora-music-bot/refs/heads/main/assets/telegram_video_img.png"
     ):
         if not re.match("(?:http|https)://", TELEGRAM_VIDEO_URL):
             print(
