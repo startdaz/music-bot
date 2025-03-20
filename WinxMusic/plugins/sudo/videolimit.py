@@ -1,16 +1,13 @@
-from pyrogram import filters
 from pyrogram.types import Message
 
 from WinxMusic import app
 from WinxMusic.misc import SUDOERS
 from WinxMusic.utils.database import set_video_limit
 from WinxMusic.utils.decorators.language import language
-from strings import get_command
-
-VIDEOLIMIT_COMMAND = get_command("VIDEOLIMIT_COMMAND")
+from strings import command
 
 
-@app.on_message(filters.command(VIDEOLIMIT_COMMAND) & SUDOERS)
+@app.on_message(command("VIDEOLIMIT_COMMAND") & SUDOERS)
 @language
 async def set_video_limit_kid(client, message: Message, _):
     if len(message.command) != 2:
