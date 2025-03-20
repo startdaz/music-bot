@@ -1,19 +1,15 @@
 import asyncio
 
-from pyrogram import filters, Client
-from pyrogram.enums import ChatMemberStatus
-from pyrogram.errors import ChatAdminRequired, UserNotParticipant
-from pyrogram.types import InlineKeyboardMarkup, CallbackQuery
+from pyrogram import filters
+from pyrogram.types import InlineKeyboardMarkup
 
 from WinxMusic import app
 from WinxMusic.utils.database import (
-    get_assistant,
     get_global_tops,
     get_particulars,
     get_userss,
 )
 from WinxMusic.utils.decorators import language_cb
-from WinxMusic.utils.decorators.play import join_chat
 from WinxMusic.utils.inline.playlist import (
     botplaylist_markup,
     failed_top_markup,
@@ -27,66 +23,45 @@ loop = asyncio.get_running_loop()
 
 @app.on_callback_query(filters.regex("get_playmarkup") & ~BANNED_USERS)
 @language_cb
-async def get_play_markup(_client: Client, callback_query: CallbackQuery, _):
+async def get_play_markup(client, CallbackQuery, _):
     try:
-        await callback_query.answer()
+        await CallbackQuery.answer()
     except Exception:
         pass
     buttons = botplaylist_markup(_)
-    return await callback_query.edit_message_reply_markup(
+    return await CallbackQuery.edit_message_reply_markup(
         reply_markup=InlineKeyboardMarkup(buttons)
     )
 
 
 @app.on_callback_query(filters.regex("get_top_playlists") & ~BANNED_USERS)
 @language_cb
-async def get_topz_playlists(_client: Client, callback_query: CallbackQuery, _):
+async def get_topz_playlists(client, CallbackQuery, _):
     try:
-        await callback_query.answer()
+        await CallbackQuery.answer()
     except Exception:
         pass
     buttons = top_play_markup(_)
-    return await callback_query.edit_message_reply_markup(
+    return await CallbackQuery.edit_message_reply_markup(
         reply_markup=InlineKeyboardMarkup(buttons)
     )
 
 
 @app.on_callback_query(filters.regex("SERVERTOP") & ~BANNED_USERS)
 @language_cb
-async def server_to_play(_client: Client, callback_query: CallbackQuery, _):
-    message = callback_query.message
-    userbot = await get_assistant(callback_query.message.chat.id)
+async def server_to_play(client, CallbackQuery, _):
+    chat_id = CallbackQuery.message.chat.id
+    user_name = CallbackQuery.from_user.first_name
     try:
-        try:
-            get = await app.get_chat_member(callback_query.message.chat.id, userbot.id)
-        except ChatAdminRequired:
-            return await myu.edit(
-                _["call_1"],
-                show_alert=True,
-            )
-        if get.status == ChatMemberStatus.BANNED:
-            try:
-                await app.unban_chat_member(chat_id, userbot.id)
-            except Exception:
-                return await myu.edit(
-                    text=_["call_2"].format(userbot.username, userbot.id),
-                )
-    except UserNotParticipant:
-        myu = await message.reply_text("❣️")
-        await join_chat(message, message.chat.id, _, myu)
-
-    chat_id = callback_query.message.chat.id
-    user_name = callback_query.from_user.first_name
-    try:
-        await callback_query.answer()
+        await CallbackQuery.answer()
     except Exception:
         pass
-    callback_data = callback_query.data.strip()
+    callback_data = CallbackQuery.data.strip()
     what = callback_data.split(None, 1)[1]
-    mystic = await callback_query.edit_message_text(
+    mystic = await CallbackQuery.edit_message_text(
         _["tracks_1"].format(
             what,
-            callback_query.from_user.first_name,
+            CallbackQuery.from_user.first_name,
         )
     )
     upl = failed_top_markup(_)
@@ -95,7 +70,7 @@ async def server_to_play(_client: Client, callback_query: CallbackQuery, _):
     elif what == "Group":
         stats = await get_particulars(chat_id)
     elif what == "Personal":
-        stats = await get_userss(callback_query.from_user.id)
+        stats = await get_userss(CallbackQuery.from_user.id)
     if not stats:
         return await mystic.edit(_["tracks_2"].format(what), reply_markup=upl)
 
@@ -135,11 +110,11 @@ async def server_to_play(_client: Client, callback_query: CallbackQuery, _):
         await stream(
             _,
             mystic,
-            callback_query.from_user.id,
+            CallbackQuery.from_user.id,
             details,
             chat_id,
             user_name,
-            callback_query.message.chat.id,
+            CallbackQuery.message.chat.id,
             video=False,
             streamtype="playlist",
         )
