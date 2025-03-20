@@ -1,4 +1,4 @@
-from pyrogram import filters, Client
+from pyrogram import filters
 from pyrogram.types import Message
 from pytgcalls.exceptions import NoActiveGroupCall
 
@@ -9,15 +9,13 @@ from WinxMusic.utils.decorators.play import play_wrapper
 from WinxMusic.utils.logger import play_logs
 from WinxMusic.utils.stream.stream import stream
 from config import BANNED_USERS
-from strings import get_command
-
-STREAM_COMMAND = get_command("STREAM_COMMAND")
+from strings import command
 
 
-@app.on_message(filters.command(STREAM_COMMAND) & filters.group & ~BANNED_USERS)
+@app.on_message(command("STREAM_COMMAND") & filters.group & ~BANNED_USERS)
 @play_wrapper
 async def stream_command(
-        _client: Client,
+        client,
         message: Message,
         _,
         chat_id,
@@ -35,9 +33,9 @@ async def stream_command(
             await Winx.stream_call(url)
         except NoActiveGroupCall:
             await mystic.edit_text(
-                "Há um problema com o bot. Por favor, reporte isso ao meu dono e peça para ele verificar o grupo de logs."
+                "There's an issue with the bot. please report it to my Owner and ask them to check logger group"
             )
-            text = "🔊 Por favor, ative o chat de voz.. O bot não consegue transmitir URLs."
+            text = "Please Turn on voice chat.. Bot is unable to stream urls.."
             return await app.send_message(config.LOG_GROUP_ID, text)
         except Exception as e:
             return await mystic.edit_text(_["general_3"].format(type(e).__name__))
