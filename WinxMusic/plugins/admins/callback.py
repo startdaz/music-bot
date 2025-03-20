@@ -4,11 +4,11 @@ from pyrogram import filters, Client
 from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, InputMediaPhoto
 
 import config
-from WinxMusic import app, Platform
+from WinxMusic import Platform, app
 from WinxMusic.core.call import Winx
 from WinxMusic.misc import SUDOERS, db
 from WinxMusic.utils import time_to_seconds
-from WinxMusic.utils.channelplay import get_channeplay_cb
+from WinxMusic.utils.channelplay import get_channeplayCB
 from WinxMusic.utils.database import (
     is_active_chat,
     is_music_playing,
@@ -45,11 +45,8 @@ from config import (
     adminlist,
     lyrical,
 )
-from strings import command
 
 wrong = {}
-downvote = {}
-downvoters = {}
 
 
 @app.on_callback_query(filters.regex("PanelMarkup") & ~BANNED_USERS)
@@ -74,7 +71,7 @@ async def markup_panel(_client: Client, callback_query: CallbackQuery, _):
 
 @app.on_callback_query(filters.regex("MainMarkup") & ~BANNED_USERS)
 @language_cb
-async def del_back_playlist(_client: Client, callback_query: CallbackQuery, _):
+async def main_markup_(_client: Client, callback_query: CallbackQuery, _):
     await callback_query.answer()
     callback_data = callback_query.data.strip()
     callback_request = callback_data.split(None, 1)[1]
@@ -97,7 +94,7 @@ async def del_back_playlist(_client: Client, callback_query: CallbackQuery, _):
 
 @app.on_callback_query(filters.regex("Pages") & ~BANNED_USERS)
 @language_cb
-async def del_back_playlist(_client: Client, callback_query: CallbackQuery, _):
+async def pages_markup(_client: Client, callback_query: CallbackQuery, _):
     await callback_query.answer()
     callback_data = callback_query.data.strip()
     callback_request = callback_data.split(None, 1)[1]
@@ -128,7 +125,7 @@ async def del_back_playlist(_client: Client, callback_query: CallbackQuery, _):
 
 @app.on_callback_query(filters.regex("ADMIN") & ~BANNED_USERS)
 @language_cb
-async def main_markup_(_client: Client, callback_query: CallbackQuery, _):
+async def admin_callback(_client: Client, callback_query: CallbackQuery, _):
     callback_data = callback_query.data.strip()
     callback_request = callback_data.split(None, 1)[1]
     command, chat = callback_request.split("|")
@@ -217,37 +214,33 @@ async def main_markup_(_client: Client, callback_query: CallbackQuery, _):
         await callback_query.message.reply_text(
             _["admin_23"].format(mention), disable_web_page_preview=True
         )
-
-    elif command == "Skip":
+    elif command in ["Skip", "Replay"]:
         check = db.get(chat_id)
-        txt = f"» Track skipped by {mention} !"
-        popped = None
-        try:
-            popped = check.pop(0)
-            if popped:
-                await auto_clean(popped)
-            if not check:
-                await callback_query.edit_message_text(
-                    f"» Track skipped by  {mention} !"
-                )
-                await callback_query.message.reply_text(
-                    _["admin_10"].format(mention), disable_web_page_preview=True
-                )
-                try:
-                    return await Winx.stop_stream(chat_id)
-                except Exception:
-                    return
-        except Exception:
+        txt = f"» Track {command.lower()}ed by {mention} !"
+
+        if command == "Skip":
             try:
-                await callback_query.edit_message_text(
-                    f"» Track skipped by  {mention} !"
-                )
+                popped = check.pop(0)
+                if popped:
+                    await auto_clean(popped)
+                if not check:
+                    await callback_query.edit_message_text(txt)
+                    await callback_query.message.reply_text(
+                        _["admin_10"].format(mention), disable_web_page_preview=True
+                    )
+                    try:
+                        return await Winx.stop_stream(chat_id)
+                    except Exception:
+                        return
+            except Exception:
+                await callback_query.edit_message_text(txt)
                 await callback_query.message.reply_text(
                     _["admin_10"].format(mention), disable_web_page_preview=True
                 )
                 return await Winx.stop_stream(chat_id)
-            except Exception:
-                return
+        elif command == "Replay":
+            db[chat_id][0]["played"] = 0
+
         await callback_query.answer()
         queued = check[0]["file"]
         title = (check[0]["title"]).title()
@@ -363,17 +356,16 @@ async def main_markup_(_client: Client, callback_query: CallbackQuery, _):
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
             elif "saavn" in videoid:
+                url = check[0]["url"]
+                details = await Platform.saavn.info(url)
                 button = telegram_markup(_, chat_id)
                 run = await callback_query.message.reply_photo(
-                    photo=check[0]["thumb"],
-                    caption=_["stream_1"].format(
-                        title, SUPPORT_GROUP, check[0]["dur"], user
-                    ),
+                    photo=details["thumb"],
+                    caption=_["stream_1"].format(title, url, check[0]["dur"], user),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
-
             else:
                 button = stream_markup(_, videoid, chat_id)
                 img = await gen_thumb(videoid)
@@ -458,7 +450,7 @@ async def play_music(_client: Client, callback_query: CallbackQuery, _):
         except Exception:
             return
     try:
-        chat_id, channel = await get_channeplay_cb(_, cplay, callback_query)
+        chat_id, channel = await get_channeplayCB(_, cplay, callback_query)
     except Exception:
         return
     user_name = callback_query.from_user.first_name
@@ -528,7 +520,7 @@ async def anonymous_check(_client: Client, callback_query: CallbackQuery):
 
 @app.on_callback_query(filters.regex("WinxPlaylists") & ~BANNED_USERS)
 @language_cb
-async def play_playlists_command(_client: Client, callback_query: CallbackQuery, _):
+async def play_playlists_cb(_client: Client, callback_query: CallbackQuery, _):
     callback_data = callback_query.data.strip()
     callback_request = callback_data.split(None, 1)[1]
     (
@@ -545,7 +537,7 @@ async def play_playlists_command(_client: Client, callback_query: CallbackQuery,
         except Exception:
             return
     try:
-        chat_id, channel = await get_channeplay_cb(_, cplay, callback_query)
+        chat_id, channel = await get_channeplayCB(_, cplay, callback_query)
     except Exception:
         return
     user_name = callback_query.from_user.first_name
@@ -567,7 +559,6 @@ async def play_playlists_command(_client: Client, callback_query: CallbackQuery,
             result = await Platform.youtube.playlist(
                 videoid,
                 config.PLAYLIST_FETCH_LIMIT,
-                callback_query.from_user.id,
                 True,
             )
         except Exception:
@@ -642,7 +633,9 @@ async def slider_queries(_client: Client, callback_query: CallbackQuery, _):
             await callback_query.answer(_["playcb_2"])
         except Exception:
             pass
-        title, duration_min, thumbnail, vidid = await Platform.youtube.slider(query, query_type)
+        title, duration_min, thumbnail, vidid = await Platform.youtube.slider(
+            query, query_type
+        )
         buttons = slider_markup(_, vidid, user_id, query, query_type, cplay, fplay)
         med = InputMediaPhoto(
             media=thumbnail,
@@ -663,7 +656,9 @@ async def slider_queries(_client: Client, callback_query: CallbackQuery, _):
             await callback_query.answer(_["playcb_2"])
         except Exception:
             pass
-        title, duration_min, thumbnail, vidid = await Platform.youtube.slider(query, query_type)
+        title, duration_min, thumbnail, vidid = await Platform.youtube.slider(
+            query, query_type
+        )
         buttons = slider_markup(_, vidid, user_id, query, query_type, cplay, fplay)
         med = InputMediaPhoto(
             media=thumbnail,
@@ -717,24 +712,3 @@ async def stop_download(_client: Client, callback_query: CallbackQuery, _):
             )
 
     await callback_query.answer("Failed to Recognise Task", show_alert=True)
-
-
-__MODULE__ = "Admin"
-__HELP__ = f"""
-<b>c significa reprodução em canal</b>
-
-<b>✧ {command("PAUSE_COMMAND")}</b> - Pausar a música que está tocando.
-<b>✧ {command("RESUME_COMMAND")}</b> - Retomar a música pausada.
-<b>✧ {command("MUTE_COMMAND")}</b> - Silenciar a música que está tocando.
-<b>✧ {command("UNMUTE_COMMAND")}</b> - Desmutar a música silenciada.
-<b>✧ {command("SKIP_COMMAND")}</b> - Pular a música que está tocando.
-<b>✧ {command("STOP_COMMAND")}</b> - Parar a música que está tocando.
-<b>✧ {command("SHUFFLE_COMMAND")}</b> - Embaralhar aleatoriamente a playlist/músicas na fila.
-<b>✧ {command("SEEK_COMMAND")}</b> - Avançar a música para um ponto específico.
-<b>✧ {command("SEEK_COMMAND")}</b> - Retroceder a música para um ponto específico.
-<b>✧ {command("REBOOT_COMMAND")}</b> - Reiniciar o bot para o seu chat.
-
-<b>✧ {command("SKIP_COMMAND")}</b> [Número (Exemplo: 3)] - Pular a música para um número específico. Exemplo: <b>/skip 3</b> vai pular para a terceira música na fila e ignorar 1 e 2.
-
-<b>✧ {command("LOOP_COMMAND")}</b> [Ativar/Desativar] ou [Número entre 1-10] - Quando ativado, o bot irá repetir a música atual de 1 a 10 vezes no chat de voz. O valor padrão é repetir 10 vezes.
-"""
