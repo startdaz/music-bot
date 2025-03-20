@@ -5,7 +5,7 @@ from typing import Union
 from pyrogram.types import InlineKeyboardMarkup
 
 import config
-from WinxMusic import app, Platform
+from WinxMusic import Platform, app
 from WinxMusic.core.call import Winx
 from WinxMusic.misc import db
 from WinxMusic.utils.database import (
@@ -16,7 +16,7 @@ from WinxMusic.utils.database import (
 from WinxMusic.utils.exceptions import AssistantErr
 from WinxMusic.utils.inline.play import stream_markup, telegram_markup
 from WinxMusic.utils.inline.playlist import close_markup
-from WinxMusic.utils.pastebin import winxbin
+from WinxMusic.utils.pastebin import WinxBin
 from WinxMusic.utils.stream.queue import put_queue, put_queue_index
 from WinxMusic.utils.thumbnails import gen_qthumb, gen_thumb
 
@@ -120,7 +120,7 @@ async def stream(
         if count == 0:
             return
         else:
-            link = await winxbin(msg)
+            link = await WinxBin(msg)
             lines = msg.count("\n")
             if lines >= 17:
                 car = os.linesep.join(msg.split(os.linesep)[:17])
@@ -134,6 +134,7 @@ async def stream(
                 caption=_["playlist_18"].format(link, position),
                 reply_markup=upl,
             )
+
     elif streamtype == "youtube":
         link = result["link"]
         vidid = result["vidid"]
@@ -189,22 +190,20 @@ async def stream(
             )
             img = await gen_thumb(vidid)
             button = stream_markup(_, vidid, chat_id)
-            try:
-                run = await app.send_photo(
-                    original_chat_id,
-                    photo=img,
-                    caption=_["stream_1"].format(
-                        title[:27],
-                        f"https://t.me/{app.username}?start=info_{vidid}",
-                        duration_min,
-                        user_name,
-                    ),
-                    reply_markup=InlineKeyboardMarkup(button),
-                )
-                db[chat_id][0]["mystic"] = run
-                db[chat_id][0]["markup"] = "stream"
-            except Exception as ex:
-                print(ex)
+            run = await app.send_photo(
+                original_chat_id,
+                photo=img,
+                caption=_["stream_1"].format(
+                    title[:27],
+                    f"https://t.me/{app.username}?start=info_{vidid}",
+                    duration_min,
+                    user_name,
+                ),
+                reply_markup=InlineKeyboardMarkup(button),
+            )
+            db[chat_id][0]["mystic"] = run
+            db[chat_id][0]["markup"] = "stream"
+
     elif "saavn" in streamtype:
         if streamtype == "saavn_track":
             if result["duration_sec"] == 0:
@@ -225,7 +224,7 @@ async def stream(
                     streamtype,
                     user_id,
                     "audio",
-                    thumb=thumb,
+                    url=link,
                 )
                 position = len(db.get(chat_id)) - 1
                 await app.send_photo(
@@ -251,7 +250,7 @@ async def stream(
                     user_id,
                     "audio",
                     forceplay=forceplay,
-                    thumb=thumb,
+                    url=link,
                 )
                 button = telegram_markup(_, chat_id)
                 run = await app.send_photo(
@@ -264,6 +263,7 @@ async def stream(
                 )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
+
         elif streamtype == "saavn_playlist":
             msg = f"{_['playlist_16']}\n\n"
             count = 0
@@ -287,7 +287,7 @@ async def stream(
                         streamtype,
                         user_id,
                         "audio",
-                        thumb=thumb,
+                        url=link,
                     )
                     position = len(db.get(chat_id)) - 1
                     count += 1
@@ -312,7 +312,7 @@ async def stream(
                         user_id,
                         "audio",
                         forceplay=forceplay,
-                        thumb=thumb,
+                        url=link,
                     )
                     button = telegram_markup(_, chat_id)
                     run = await app.send_photo(
@@ -328,7 +328,7 @@ async def stream(
             if count == 0:
                 return
             else:
-                link = await winxbin(msg)
+                link = await WinxBin(msg)
                 lines = msg.count("\n")
                 if lines >= 17:
                     car = os.linesep.join(msg.split(os.linesep)[:17])
@@ -342,6 +342,7 @@ async def stream(
                     caption=_["playlist_18"].format(link, position),
                     reply_markup=upl,
                 )
+
     elif streamtype == "soundcloud":
         file_path = result["filepath"]
         title = result["title"]
@@ -553,7 +554,7 @@ async def stream(
             run = await app.send_photo(
                 original_chat_id,
                 photo=config.STREAM_IMG_URL,
-                caption=_["stream_1"].format(title, link, duration_min, user_name),
+                caption=_["stream_2"].format(user_name),
                 reply_markup=InlineKeyboardMarkup(button),
             )
             db[chat_id][0]["mystic"] = run
