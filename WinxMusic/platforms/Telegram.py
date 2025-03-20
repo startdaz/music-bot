@@ -5,13 +5,7 @@ from datetime import datetime, timedelta
 from typing import Union
 
 import aiohttp
-from pyrogram.types import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    Voice,
-    Message,
-    Video,
-)
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Voice
 
 import config
 from WinxMusic import app
@@ -28,7 +22,7 @@ class Telegram:
 
     async def send_split_text(self, message, string):
         n = self.chars_limit
-        out = [(string[i : i + n]) for i in range(0, len(string), n)]
+        out = [(string[i: i + n]) for i in range(0, len(string), n)]
         j = 0
         for x in out:
             if j <= 2:
@@ -36,7 +30,7 @@ class Telegram:
                 await message.reply_text(x)
         return True
 
-    async def get_link(self, message: Message):
+    async def get_link(self, message):
         if message.chat.username:
             link = f"https://t.me/{message.chat.username}/{message.reply_to_message.id}"
         else:
@@ -53,7 +47,7 @@ class Telegram:
             file_name = "🎵 Áudio do Telegram" if audio else "🎥 Vídeo do Telegram"
         return file_name
 
-    async def get_duration(self, file: Union[Video, Voice, Message]):
+    async def get_duration(self, file):
         try:
             dur = seconds_to_min(file.duration)
         except Exception:
@@ -61,20 +55,20 @@ class Telegram:
         return dur
 
     async def get_filepath(
-        self,
-        audio: Union[Voice, Message, bool, str] = None,
-        video: Union[Video, Message, bool, str] = None,
+            self,
+            audio: Union[bool, str] = None,
+            video: Union[bool, str] = None,
     ):
         if audio:
             try:
                 file_name = (
-                    audio.file_unique_id
-                    + "."
-                    + (
-                        (audio.file_name.split(".")[-1])
-                        if (not isinstance(audio, Voice))
-                        else "ogg"
-                    )
+                        audio.file_unique_id
+                        + "."
+                        + (
+                            (audio.file_name.split(".")[-1])
+                            if (not isinstance(audio, Voice))
+                            else "ogg"
+                        )
                 )
             except Exception:
                 file_name = audio.file_unique_id + "." + ".ogg"
@@ -82,7 +76,7 @@ class Telegram:
         if video:
             try:
                 file_name = (
-                    video.file_unique_id + "." + (video.file_name.split(".")[-1])
+                        video.file_unique_id + "." + (video.file_name.split(".")[-1])
                 )
             except Exception:
                 file_name = video.file_unique_id + "." + "mp4"
@@ -96,20 +90,20 @@ class Telegram:
                     if response.status == 200:
                         content_type = response.headers.get("Content-Type", "")
                         if (
-                            "application/vnd.apple.mpegurl" in content_type
-                            or "application/x-mpegURL" in content_type
+                                "application/vnd.apple.mpegurl" in content_type
+                                or "application/x-mpegURL" in content_type
                         ):
                             return True
                         if any(
-                            keyword in content_type
-                            for keyword in [
-                                "audio",
-                                "video",
-                                "mp4",
-                                "mpegurl",
-                                "m3u8",
-                                "mpeg",
-                            ]
+                                keyword in content_type
+                                for keyword in [
+                                    "audio",
+                                    "video",
+                                    "mp4",
+                                    "mpegurl",
+                                    "m3u8",
+                                    "mpeg",
+                                ]
                         ):
                             return True
                         if url.endswith((".m3u8", ".index", ".mp4", ".mpeg", ".mpd")):
@@ -135,7 +129,7 @@ class Telegram:
                     [
                         [
                             InlineKeyboardButton(
-                                text="🚦 Cancelar Download",
+                                text="🚦 Cancel downloading",
                                 callback_data="stop_downloading",
                             ),
                         ]
@@ -203,7 +197,7 @@ class Telegram:
         await task
         downloaded = downloader.get(message.id)
         if downloaded:
-            downloader.pop(message.id, None)
+            downloader.pop(message.id)
             return False
         verify = lyrical.get(mystic.id)
         if not verify:
