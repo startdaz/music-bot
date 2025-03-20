@@ -10,10 +10,9 @@ from pyrogram.types import CallbackQuery, InputMediaPhoto, Message
 from pytgcalls.__version__ import __version__ as pytgver
 
 import config
-from WinxMusic import app, Platform
+from WinxMusic import Platform, app
 from WinxMusic.core.userbot import assistants
 from WinxMusic.misc import SUDOERS, pymongodb
-from WinxMusic.plugins import ALL_MODULES
 from WinxMusic.utils.database import (
     get_global_tops,
     get_particulars,
@@ -38,8 +37,8 @@ from strings import get_command
 
 loop = asyncio.get_running_loop()
 
-GSTATS_COMMAND = get_command("GSTATS_COMMAND")
-STATS_COMMAND = get_command("STATS_COMMAND")
+GSTATS_COMMAND = get_command("pt")["GSTATS_COMMAND"]
+STATS_COMMAND = get_command("pt")["STATS_COMMAND"]
 
 
 @app.on_message(filters.command(STATS_COMMAND, PREFIXES) & ~BANNED_USERS)
@@ -75,7 +74,7 @@ async def gstats_global(_client: Client, message: Message, _):
                 )
             )
         if not results:
-            return mystic.edit(_["gstats_2"] + " 🚫")
+            return mystic.edit(_["gstats_2"])
         videoid = None
         co = None
         for vidid, count in list_arranged.items():
@@ -242,7 +241,7 @@ async def overall_stats(_client: Client, callback_query: CallbackQuery, _):
     total_queries = await get_queries()
     blocked = len(BANNED_USERS)
     sudoers = len(SUDOERS)
-    mod = len(ALL_MODULES)
+    mod = int(app.loaded_plug_counts)
     assistant = len(assistants)
     playlist_limit = config.SERVER_PLAYLIST_LIMIT
     fetch_playlist = config.PLAYLIST_FETCH_LIMIT
@@ -314,7 +313,7 @@ async def overall_stats(_client: Client, callback_query: CallbackQuery, _):
     used = str(used)
     free = hdd.free / (1024.0 ** 3)
     free = str(free)
-    mod = len(ALL_MODULES)
+    mod = int(app.loaded_plug_counts)
     db = pymongodb
     call = db.command("dbstats")
     datasize = call["dataSize"] / 1024
