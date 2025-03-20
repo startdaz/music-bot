@@ -8,7 +8,7 @@ from WinxMusic import Platform, app
 from WinxMusic.core.call import Winx
 from WinxMusic.misc import SUDOERS, db
 from WinxMusic.utils import time_to_seconds
-from WinxMusic.utils.channelplay import get_channeplayCB
+from WinxMusic.utils.channelplay import get_channeplay_cb
 from WinxMusic.utils.database import (
     is_active_chat,
     is_music_playing,
@@ -450,7 +450,7 @@ async def play_music(_client: Client, callback_query: CallbackQuery, _):
         except Exception:
             return
     try:
-        chat_id, channel = await get_channeplayCB(_, cplay, callback_query)
+        chat_id, channel = await get_channeplay_cb(_, cplay, callback_query)
     except Exception:
         return
     user_name = callback_query.from_user.first_name
@@ -537,7 +537,7 @@ async def play_playlists_cb(_client: Client, callback_query: CallbackQuery, _):
         except Exception:
             return
     try:
-        chat_id, channel = await get_channeplayCB(_, cplay, callback_query)
+        chat_id, channel = await get_channeplay_cb(_, cplay, callback_query)
     except Exception:
         return
     user_name = callback_query.from_user.first_name
