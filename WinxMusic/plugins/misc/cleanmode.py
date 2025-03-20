@@ -1,11 +1,10 @@
 import asyncio
 from datetime import datetime, timedelta
 
-from pyrogram import filters, Client
+from pyrogram import filters
 from pyrogram.enums import ChatMembersFilter
 from pyrogram.errors import FloodWait
 from pyrogram.raw import types
-from pyrogram.types import Message
 
 import config
 from WinxMusic import app
@@ -25,9 +24,8 @@ from WinxMusic.utils.database import (
 from WinxMusic.utils.decorators.language import language
 from WinxMusic.utils.formatters import alpha_to_int
 from config import adminlist, chatstats, clean, userstats
-from strings import command, get_command
+from strings import command
 
-BROADCAST_COMMAND = get_command("BROADCAST_COMMAND")
 AUTO_DELETE = config.CLEANMODE_DELETE_MINS
 AUTO_SLEEP = 5
 IS_BROADCASTING = False
@@ -63,9 +61,9 @@ async def clean_mode(client, update, users, chats):
     await set_queries(1)
 
 
-@app.on_message(filters.command(BROADCAST_COMMAND) & filters.user(config.OWNER_ID))
+@app.on_message(command("BROADCAST_COMMAND") & filters.user(config.OWNER_ID))
 @language
-async def braodcast_message(_client: Client, message: Message, _):
+async def braodcast_message(client, message, _):
     global IS_BROADCASTING
     if message.reply_to_message:
         x = message.reply_to_message.id
@@ -105,7 +103,7 @@ async def braodcast_message(_client: Client, message: Message, _):
                 m = (
                     await app.forward_messages(i, y, x)
                     if message.reply_to_message
-                    else await app.send_message(i, text=query, send_direct=True)
+                    else await app.send_message(i, text=query)
                 )
                 if "-pin" in message.text:
                     try:
@@ -145,7 +143,7 @@ async def braodcast_message(_client: Client, message: Message, _):
                 m = (
                     await app.forward_messages(i, y, x)
                     if message.reply_to_message
-                    else await app.send_message(i, text=query, send_direct=True)
+                    else await app.send_message(i, text=query)
                 )
                 if "-pin" in message.text:
                     try:
@@ -281,21 +279,3 @@ async def auto_clean():
 
 
 asyncio.create_task(auto_clean())
-
-__MODULE__ = "G cast"
-__HELP__ = f"""
-<b>{command("BROADCAST_COMMAND")} [Mensagem ou Responder a qualquer mensagem]</b> » Transmite uma mensagem para os chats atendidos pelo bot.
-<u>Modos de Transmissão:</u>
-
-<b><code>-pin</code></b> » Fixa sua mensagem transmitida nos chats atendidos.
-
-<b><code>-pinloud</code></b> » Fixa sua mensagem transmitida nos chats atendidos e envia uma notificação para os membros.
-
-<b><code>-user</code></b> » Transmite a mensagem para quem iniciou o seu bot [Você também pode fixar a mensagem usando `-pin` ou `-pinloud`].
-
-<b><code>-assistant</code></b> » Transmite sua mensagem através de todos os Assistentes do bot.
-
-<b><code>-nobot</code></b> » Força o **bot** a não transmitir a mensagem [Útil quando você não deseja transmitir a mensagem para grupos].
-
-> <b>Exemplo:</b> <code>/broadcast -user -assistant -pin Testando transmissão</code>
-"""
