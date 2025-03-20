@@ -1,4 +1,3 @@
-from pyrogram import filters, Client
 from pyrogram.types import Message
 
 from WinxMusic import app
@@ -9,13 +8,11 @@ from WinxMusic.utils.database import (
     maintenance_off,
     maintenance_on,
 )
-from strings import get_command, get_string
-
-MAINTENANCE_COMMAND = get_command("MAINTENANCE_COMMAND")
+from strings import command, get_string
 
 
-@app.on_message(filters.command(MAINTENANCE_COMMAND) & SUDOERS)
-async def maintenance(_client: Client, message: Message):
+@app.on_message(command("MAINTENANCE_COMMAND") & SUDOERS)
+async def maintenance(client, message: Message):
     try:
         language = await get_lang(message.chat.id)
         _ = get_string(language)
