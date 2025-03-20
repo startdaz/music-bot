@@ -1,7 +1,5 @@
 import asyncio
 
-from httpx import Client
-from pyrogram import filters
 from pyrogram.errors import FloodWait
 from pyrogram.types import Message
 
@@ -18,16 +16,12 @@ from WinxMusic.utils.database import (
 )
 from WinxMusic.utils.decorators.language import language
 from config import BANNED_USERS
-from strings import get_command
-
-GBAN_COMMAND = get_command("GBAN_COMMAND")
-UNGBAN_COMMAND = get_command("UNGBAN_COMMAND")
-GBANNED_COMMAND = get_command("GBANNED_COMMAND")
+from strings import command
 
 
-@app.on_message(filters.command(GBAN_COMMAND) & SUDOERS)
+@app.on_message(command("GBAN_COMMAND") & SUDOERS)
 @language
-async def gbanuser(_client: Client, message: Message, _):
+async def gbanuser(client, message: Message, _):
     if not message.reply_to_message:
         if len(message.command) != 2:
             return await message.reply_text(_["general_1"])
@@ -70,9 +64,9 @@ async def gbanuser(_client: Client, message: Message, _):
     await mystic.delete()
 
 
-@app.on_message(filters.command(UNGBAN_COMMAND) & SUDOERS)
+@app.on_message(command("UNGBAN_COMMAND") & SUDOERS)
 @language
-async def gungabn(_client: Client, message: Message, _):
+async def gungabn(client, message: Message, _):
     if not message.reply_to_message:
         if len(message.command) != 2:
             return await message.reply_text(_["general_1"])
@@ -109,9 +103,9 @@ async def gungabn(_client: Client, message: Message, _):
     await mystic.delete()
 
 
-@app.on_message(filters.command(GBANNED_COMMAND) & SUDOERS)
+@app.on_message(command("GBANNED_COMMAND") & SUDOERS)
 @language
-async def gbanned_list(_client: Client, message: Message, _):
+async def gbanned_list(client, message: Message, _):
     counts = await get_banned_count()
     if counts == 0:
         return await message.reply_text(_["gban_10"])
