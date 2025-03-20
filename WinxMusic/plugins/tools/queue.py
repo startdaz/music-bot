@@ -14,7 +14,7 @@ from WinxMusic.utils.inline.queue import queue_back_markup, queue_markup
 from config import BANNED_USERS
 from strings import get_command
 
-QUEUE_COMMAND = get_command("QUEUE_COMMAND")
+QUEUE_COMMAND = get_command("pt")["QUEUE_COMMAND"]
 
 basic = {}
 
