@@ -101,6 +101,6 @@ UNGBAN_COMMAND: [ "ungban" ]
 GBANNED_COMMAND: [ "gbannedusers", "usuariosgbaneados" ]
 
 # AnimiZeY
-MOVIES_COMMAND: [ "movies", "filmes" ]
+MOVIES_COMMAND: [ "movies", "filmes", "cinema", "filme" ]
 ANIME_COMMAND: [ "anime" ]
 FOLDER_COMMAND: [ "folder", "pasta" ]
