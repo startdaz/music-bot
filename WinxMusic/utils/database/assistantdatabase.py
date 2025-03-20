@@ -52,31 +52,31 @@ async def set_assistant(chat_id):
     return userbot
 
 
-async def get_assistant(chat_id: int) -> userbot:
+async def get_assistant(chat_id: int) -> str:
     from WinxMusic.core.userbot import assistants
 
     assistant = assistantdict.get(chat_id)
     if not assistant:
         dbassistant = await db.find_one({"chat_id": chat_id})
         if not dbassistant:
-            user_bot = await set_assistant(chat_id)
-            return user_bot
+            userbot = await set_assistant(chat_id)
+            return userbot
         else:
             got_assis = dbassistant["assistant"]
             if got_assis in assistants:
                 assistantdict[chat_id] = got_assis
-                user_bot = await get_client(got_assis)
-                return user_bot
+                userbot = await get_client(got_assis)
+                return userbot
             else:
-                user_bot = await set_assistant(chat_id)
-                return user_bot
+                userbot = await set_assistant(chat_id)
+                return userbot
     else:
         if assistant in assistants:
-            user_bot = await get_client(assistant)
-            return user_bot
+            userbot = await get_client(assistant)
+            return userbot
         else:
-            user_bot = await set_assistant(chat_id)
-            return user_bot
+            userbot = await set_assistant(chat_id)
+            return userbot
 
 
 async def set_calls_assistant(chat_id):
