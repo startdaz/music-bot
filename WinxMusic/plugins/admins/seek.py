@@ -1,19 +1,19 @@
-from pyrogram import filters, Client
+from pyrogram import filters
 from pyrogram.types import Message
 
-from WinxMusic import app, Platform
+from WinxMusic import Platform, app
 from WinxMusic.core.call import Winx
 from WinxMusic.misc import db
 from WinxMusic.utils import admin_rights_check, seconds_to_min
-from config import BANNED_USERS, PREFIXES
-from strings import get_command
-
-SEEK_COMMAND = get_command("SEEK_COMMAND")
+from config import BANNED_USERS
+from strings import command
 
 
-@app.on_message(filters.command(SEEK_COMMAND, PREFIXES) & filters.group & ~BANNED_USERS)
+@app.on_message(
+    command(["SEEK_COMMAND", "SEEK_BACK_COMMAND"]) & filters.group & ~BANNED_USERS
+)
 @admin_rights_check
-async def seek_comm(_client: Client, message: Message, _, chat_id: int):
+async def seek_comm(cli, message: Message, _, chat_id):
     if len(message.command) == 1:
         return await message.reply_text(_["admin_28"])
     query = message.text.split(None, 1)[1].strip()
