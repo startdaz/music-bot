@@ -1,17 +1,14 @@
 import random
 import string
 
-from pyrogram import filters, Client
+from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 import config
-from WinxMusic import (
-    LOGGER,
-    app, Platform,
-)
+from WinxMusic import LOGGER, Platform, app
 from WinxMusic.utils import seconds_to_min, time_to_seconds
 from WinxMusic.utils.database import is_video_allowed
-from WinxMusic.utils.decorators.play import play_wrapper
+from WinxMusic.utils.decorators.play import PlayWrapper
 from WinxMusic.utils.formatters import formats
 from WinxMusic.utils.inline.play import (
     livestream_markup,
@@ -23,30 +20,28 @@ from WinxMusic.utils.inline.playlist import botplaylist_markup
 from WinxMusic.utils.logger import play_logs
 from WinxMusic.utils.stream.stream import stream
 from config import BANNED_USERS, lyrical
-from strings import get_command
-
-PLAY_COMMAND = get_command("PLAY_COMMAND")
+from strings import command
 
 
 @app.on_message(
-    filters.command(
-        PLAY_COMMAND,
+    command(
+        "PLAY_COMMAND",
         prefixes=["/", "!", "%", ",", "@", "#"],
     )
     & filters.group
     & ~BANNED_USERS
 )
-@play_wrapper
+@PlayWrapper
 async def play_commnd(
-        _client: Client,
+        client,
         message: Message,
         _,
-        chat_id: int,
-        video: bool,
-        channel: bool,
-        playmode: str,
-        url: str,
-        fplay: bool,
+        chat_id,
+        video,
+        channel,
+        playmode,
+        url,
+        fplay,
 ):
     mystic = await message.reply_text(
         _["play_2"].format(channel) if channel else _["play_1"]
@@ -71,7 +66,7 @@ async def play_commnd(
         if audio_telegram.file_size > config.TG_AUDIO_FILESIZE_LIMIT:
             return await mystic.edit_text(_["play_5"])
         duration_min = seconds_to_min(audio_telegram.duration)
-        if audio_telegram.duration > config.DURATION_LIMIT:
+        if (audio_telegram.duration) > config.DURATION_LIMIT:
             return await mystic.edit_text(
                 _["play_6"].format(config.DURATION_LIMIT_MIN, duration_min)
             )
@@ -166,7 +161,6 @@ async def play_commnd(
                     details = await Platform.youtube.playlist(
                         url,
                         config.PLAYLIST_FETCH_LIMIT,
-                        message.from_user.id,
                     )
                 except Exception as e:
                     print(e)
@@ -206,7 +200,7 @@ async def play_commnd(
             spotify = True
             if not config.SPOTIFY_CLIENT_ID and not config.SPOTIFY_CLIENT_SECRET:
                 return await mystic.edit_text(
-                    "🚫 Este bot não pode reproduzir faixas e playlists do Spotify. Por favor, entre em contato com meu dono e peça para ele adicionar o reprodutor de Spotify."
+                    "This Bot can't play spotify tracks and playlist, please contact my owner and ask him to add Spotify player."
                 )
             if "track" in url:
                 try:
@@ -329,6 +323,7 @@ async def play_commnd(
                     LOGGER(__name__).error("An error occurred", exc_info=True)
                 return await mystic.edit_text(err)
             return await mystic.delete()
+
         elif await Platform.soundcloud.valid(url):
             try:
                 details, track_path = await Platform.soundcloud.download(url)
@@ -403,8 +398,7 @@ async def play_commnd(
             query = query.replace("-v", "")
         try:
             details, track_id = await Platform.youtube.track(query)
-        except Exception as e:
-            print(e)
+        except Exception:
             return await mystic.edit_text(_["play_3"])
         streamtype = "youtube"
     if str(playmode) == "Direct" and not plist_type:
@@ -512,22 +506,3 @@ async def play_commnd(
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
                 return await play_logs(message, streamtype=f"URL Searched Inline")
-
-
-__MODULE__ = "Play"
-__HELP__ = """
-<b>★ play, vplay, cplay</b> - Comandos Disponíveis
-<b>★ playforce, vplayforce, cplayforce</b> - Comandos de Reprodução Forçada
-
-<b>✦ c significa reprodução em canal.</b>
-<b>✦ v significa reprodução de vídeo.</b>
-<b>✦ force significa reprodução forçada.</b>
-
-<b>✧ /play ou /vplay ou /cplay</b> - O bot começará a reproduzir a consulta fornecida no chat de voz ou transmitirá links ao vivo nos chats de voz.
-
-<b>✧ /playforce ou /vplayforce ou /cplayforce</b> - A Reprodução Forçada interrompe a faixa atual no chat de voz e começa a tocar a faixa pesquisada instantaneamente sem alterar/limpar a fila.
-
-<b>✧ /channelplay [Nome de usuário ou ID do chat] ou [Desativar]</b> - Conecte um canal a um grupo e transmita música no chat de voz do canal a partir do seu grupo.
-
-<b>✧ /stream [url] </b> - Transmita uma URL que você acredita ser direta ou m3u8 e que não pode ser reproduzida pelo comando /play.
-"""
