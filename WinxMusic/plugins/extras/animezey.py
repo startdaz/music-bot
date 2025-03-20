@@ -11,8 +11,8 @@ from WinxMusic.utils.stream.stream import stream
 from config import BANNED_USERS, PREFIXES
 from strings import get_command, get_string
 
-MOVIES_COMMAND = get_command("MOVIES_COMMAND")
-ANIME_COMMAND = get_command("ANIME_COMMAND")
+MOVIES_COMMAND = get_command("pt")["MOVIES_COMMAND"]
+ANIME_COMMAND = get_command("pt")["ANIME_COMMAND"]
 
 RESULTS_PER_PAGE = 4
 
