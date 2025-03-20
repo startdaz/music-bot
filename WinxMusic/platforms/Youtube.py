@@ -83,7 +83,7 @@ class YouTube:
                         return entity.url
         if offset in (None,):
             return None
-        return text[offset: offset + length]
+        return text[offset : offset + length]
 
     @alru_cache(maxsize=None)
     async def details(self, link: str, videoid: Union[bool, str] = None):
@@ -279,10 +279,10 @@ class YouTube:
 
     @alru_cache(maxsize=None)
     async def slider(
-            self,
-            link: str,
-            query_type: int,
-            videoid: Union[bool, str] = None,
+        self,
+        link: str,
+        query_type: int,
+        videoid: Union[bool, str] = None,
     ):
         if videoid:
             link = self.base + link
@@ -297,15 +297,15 @@ class YouTube:
         return title, duration_min, thumbnail, vidid
 
     async def download(
-            self,
-            link: str,
-            mystic,
-            video: Union[bool, str] = None,
-            videoid: Union[bool, str] = None,
-            songaudio: Union[bool, str] = None,
-            songvideo: Union[bool, str] = None,
-            format_id: Union[bool, str] = None,
-            title: Union[bool, str] = None,
+        self,
+        link: str,
+        mystic,
+        video: Union[bool, str] = None,
+        videoid: Union[bool, str] = None,
+        songaudio: Union[bool, str] = None,
+        songvideo: Union[bool, str] = None,
+        format_id: Union[bool, str] = None,
+        title: Union[bool, str] = None,
     ) -> str:
         if videoid:
             link = self.base + link
