@@ -6,30 +6,34 @@ from functools import wraps
 
 from pyrogram import Client, StopPropagation
 from pyrogram.errors import (
-    FloodWait,
-    MessageNotModified,
-    MessageIdInvalid,
     ChatSendMediaForbidden,
     ChatSendPhotosForbidden,
     ChatWriteForbidden,
+    FloodWait,
+    MessageIdInvalid,
+    MessageNotModified,
 )
 from pyrogram.handlers import MessageHandler
-import config
 
+import config
 from ..logging import LOGGER
 
 assistants = []
-assistant_ids = []
+assistantids = []
 
 
 class Userbot(Client):
     def __init__(self):
-        self.clients = []
+        self.clients = [
+            Client(
+                f"WinxString_{i}",
+                api_id=config.API_ID,
+                api_hash=config.API_HASH,
+                session_string=session.strip(),
+            )
+            for i, session in enumerate(config.STRING_SESSIONS, start=1)
+        ]
         self.handlers = []
-
-    def add(self, *args, **kwargs):
-        """Add a new client to the Userbot."""
-        self.clients.append(Client(*args, **kwargs))
 
     async def _start(self, client, index):
         LOGGER(__name__).info(f"Starting Assistant Client {index}")
@@ -53,7 +57,7 @@ class Userbot(Client):
             client.username = get_me.username
             client.id = get_me.id
             client.mention = get_me.mention
-            assistant_ids.append(get_me.id)
+            assistantids.append(get_me.id)
             client.name = f"{get_me.first_name} {get_me.last_name or ''}".strip()
 
             # Add stored handlers to the client
@@ -82,9 +86,7 @@ class Userbot(Client):
         tasks = [client.stop() for client in self.clients]
         await asyncio.gather(*tasks)
 
-    def on_message(
-        self, filters=None, group=0
-    ):  # on_message decirator for future Userbot Plugins
+    def on_message(self, filters=None, group=0):
         """Decorator for handling messages with error handling."""
 
         def decorator(func):
@@ -98,11 +100,11 @@ class Userbot(Client):
                     )
                     await asyncio.sleep(e.value)
                 except (
-                    ChatWriteForbidden,
-                    ChatSendMediaForbidden,
-                    ChatSendPhotosForbidden,
-                    MessageNotModified,
-                    MessageIdInvalid,
+                        ChatWriteForbidden,
+                        ChatSendMediaForbidden,
+                        ChatSendPhotosForbidden,
+                        MessageNotModified,
+                        MessageIdInvalid,
                 ):
                     pass
                 except StopPropagation:
