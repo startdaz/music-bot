@@ -27,18 +27,9 @@ from WinxMusic.utils.database import (
 )
 from WinxMusic.utils.decorators import admin_actual
 from WinxMusic.utils.decorators.language import language
-from WinxMusic.utils.pastebin import winxbin
+from WinxMusic.utils.pastebin import Yukkibin
 from config import BANNED_USERS
-from strings import get_command
-
-GETLOG_COMMAND = get_command("GETLOG_COMMAND")
-GETVAR_COMMAND = get_command("GETVAR_COMMAND")
-DELVAR_COMMAND = get_command("DELVAR_COMMAND")
-SETVAR_COMMAND = get_command("SETVAR_COMMAND")
-USAGE_COMMAND = get_command("USAGE_COMMAND")
-UPDATE_COMMAND = get_command("UPDATE_COMMAND")
-RESTART_COMMAND = get_command("RESTART_COMMAND")
-REBOOT_COMMAND = get_command("REBOOT_COMMAND")
+from strings import command
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -48,40 +39,46 @@ async def is_heroku():
 
 
 async def paste_neko(code: str):
-    return await winxbin(code)
+    return await Yukkibin(code)
 
 
-@app.on_message(filters.command(GETLOG_COMMAND) & SUDOERS)
+@app.on_message(command("GETLOG_COMMAND") & SUDOERS)
 @language
 async def log_(client, message, _):
+    async def _get_log():
+        log = open(config.LOG_FILE_NAME)
+        lines = log.readlines()
+        log.close()
+        data = ""
+        try:
+            NUMB = int(message.text.split(None, 1)[1])
+        except Exception:
+            NUMB = 100
+        for x in lines[-NUMB:]:
+            data += x
+        link = await Yukkibin(data)
+        return link
+
     try:
         if await is_heroku():
             if HAPP is None:
+                if os.path.exists(config.LOG_FILE_NAME):
+                    return await message.reply_text(await _get_log())
                 return await message.reply_text(_["heroku_1"])
             data = HAPP.get_log()
-            link = await winxbin(data)
+            link = await Yukkibin(data)
             return await message.reply_text(link)
         else:
             if os.path.exists(config.LOG_FILE_NAME):
-                log = open(config.LOG_FILE_NAME)
-                lines = log.readlines()
-                data = ""
-                try:
-                    NUMB = int(message.text.split(None, 1)[1])
-                except Exception:
-                    NUMB = 100
-                for x in lines[-NUMB:]:
-                    data += x
-                link = await paste_neko(data)
+                link = await _get_log()
                 return await message.reply_text(link)
             else:
                 return await message.reply_text(_["heroku_2"])
-    except Exception as e:
-        print(e)
+    except Exception:
         await message.reply_text(_["heroku_2"])
 
 
-@app.on_message(filters.command(GETVAR_COMMAND) & SUDOERS)
+@app.on_message(command("GETVAR_COMMAND") & SUDOERS)
 @language
 async def varget_(client, message, _):
     usage = _["heroku_3"]
@@ -109,7 +106,7 @@ async def varget_(client, message, _):
             return await message.reply_text(f"**{check_var}:** `{str(output)}`")
 
 
-@app.on_message(filters.command(DELVAR_COMMAND) & SUDOERS)
+@app.on_message(command("DELVAR_COMMAND") & SUDOERS)
 @language
 async def vardel_(client, message, _):
     usage = _["heroku_6"]
@@ -137,7 +134,7 @@ async def vardel_(client, message, _):
             os.system(f"kill -9 {os.getpid()} && python3 -m WinxMusic")
 
 
-@app.on_message(filters.command(SETVAR_COMMAND) & SUDOERS)
+@app.on_message(command("SETVAR_COMMAND") & SUDOERS)
 @language
 async def set_var(client, message, _):
     usage = _["heroku_8"]
@@ -166,7 +163,7 @@ async def set_var(client, message, _):
         os.system(f"kill -9 {os.getpid()} && python3 -m WinxMusic")
 
 
-@app.on_message(filters.command(USAGE_COMMAND) & SUDOERS)
+@app.on_message(command("USAGE_COMMAND") & SUDOERS)
 @language
 async def usage_dynos(client, message, _):
     ### Credits CatUserbot
@@ -223,7 +220,7 @@ Total Left: `{hours}`**h**  `{minutes}`**m**  [`{percentage}`**%**]"""
     return await dyno.edit(text)
 
 
-@app.on_message(filters.command(UPDATE_COMMAND) & SUDOERS)
+@app.on_message(command("UPDATE_COMMAND") & SUDOERS)
 @language
 async def update_(client, message, _):
     if await is_heroku():
@@ -257,7 +254,7 @@ async def update_(client, message, _):
     _final_updates_ = f"{_update_response_} {updates}"
 
     if len(_final_updates_) > 4096:
-        url = await winxbin(updates)
+        url = await Yukkibin(updates)
         nrs = await response.edit(
             f"**A new upadte is available for the Bot!**\n\n➣ Pushing upadtes Now\n\n__**Updates:**__\n\n[Check Upadtes]({url})",
             disable_web_page_preview=True,
@@ -310,7 +307,7 @@ async def update_(client, message, _):
         exit()
 
 
-@app.on_message(filters.command(REBOOT_COMMAND) & filters.group & ~BANNED_USERS)
+@app.on_message(command("REBOOT_COMMAND") & filters.group & ~BANNED_USERS)
 @admin_actual
 async def reboot(client, message: Message, _):
     mystic = await message.reply_text(
@@ -336,7 +333,7 @@ async def reboot(client, message: Message, _):
     return await mystic.edit_text("Sucessfully Restarted \nTry playing Now..")
 
 
-@app.on_message(filters.command(RESTART_COMMAND) & ~BANNED_USERS)
+@app.on_message(command("RESTART_COMMAND") & ~BANNED_USERS)
 async def restart_(client, message):
     if message.from_user and not message.from_user.id in SUDOERS:
         if message.chat.type not in [ChatType.GROUP, ChatType.SUPERGROUP]:
