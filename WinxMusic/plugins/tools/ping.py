@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from pyrogram import filters, Client
 from pyrogram.types import Message
 
 from WinxMusic import app
@@ -8,15 +7,13 @@ from WinxMusic.core.call import Winx
 from WinxMusic.utils import bot_sys_stats
 from WinxMusic.utils.decorators.language import language
 from WinxMusic.utils.inline import support_group_markup
-from config import BANNED_USERS, PING_IMG_URL, PREFIXES
-from strings import get_command
-
-PING_COMMAND = get_command("PING_COMMAND")
+from config import BANNED_USERS, PING_IMG_URL
+from strings import command
 
 
-@app.on_message(filters.command(PING_COMMAND, PREFIXES) & ~BANNED_USERS)
+@app.on_message(command("PING_COMMAND") & ~BANNED_USERS)
 @language
-async def ping_com(_client: Client, message: Message, _):
+async def ping_com(client, message: Message, _):
     response = await message.reply_photo(
         photo=PING_IMG_URL,
         caption=_["ping_1"].format(app.mention),
