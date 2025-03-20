@@ -11,14 +11,13 @@ from pyrogram.errors import (
 )
 from pyrogram.types import InlineKeyboardMarkup
 from pytgcalls import PyTgCalls, filters
-from pytgcalls.exceptions import AlreadyJoinedError
+from pytgcalls.exceptions import NoActiveGroupCall
 from pytgcalls.types import (
     ChatUpdate,
     GroupCallConfig,
     MediaStream,
-    Update,
+    StreamEnded,
 )
-from pytgcalls.types import StreamAudioEnded
 
 import config
 from WinxMusic import LOGGER, Platform, app, userbot
@@ -27,19 +26,17 @@ from WinxMusic.misc import db
 from WinxMusic.utils.database import (
     add_active_chat,
     add_active_video_chat,
+    get_assistant,
     get_audio_bitrate,
+    get_lang,
     get_loop,
     get_video_bitrate,
     group_assistant,
     music_on,
     remove_active_chat,
     remove_active_video_chat,
-    set_loop,
-)
-from WinxMusic.utils.database import (
-    get_assistant,
-    get_lang,
     set_assistant,
+    set_loop,
 )
 from WinxMusic.utils.exceptions import AssistantErr
 from WinxMusic.utils.inline.play import stream_markup, telegram_markup
@@ -73,19 +70,19 @@ class Call:
 
     async def pause_stream(self, chat_id: int):
         assistant = await group_assistant(self, chat_id)
-        await assistant.pause_stream(chat_id)
+        await assistant.pause(chat_id)
 
     async def resume_stream(self, chat_id: int):
         assistant = await group_assistant(self, chat_id)
-        await assistant.resume_stream(chat_id)
+        await assistant.resume(chat_id)
 
     async def mute_stream(self, chat_id: int):
         assistant = await group_assistant(self, chat_id)
-        await assistant.mute_stream(chat_id)
+        await assistant.mute(chat_id)
 
     async def unmute_stream(self, chat_id: int):
         assistant = await group_assistant(self, chat_id)
-        await assistant.unmute_stream(chat_id)
+        await assistant.unmute(chat_id)
 
     async def stop_stream(self, chat_id: int):
         assistant = await group_assistant(self, chat_id)
@@ -110,11 +107,11 @@ class Call:
             pass
 
     async def skip_stream(
-        self,
-        chat_id: int,
-        link: str,
-        video: Union[bool, str] = None,
-        image: Union[bool, str] = None,
+            self,
+            chat_id: int,
+            link: str,
+            video: Union[bool, str] = None,
+            image: Union[bool, str] = None,
     ):
         assistant = await group_assistant(self, chat_id)
         audio_stream_quality = await get_audio_bitrate(chat_id)
@@ -177,12 +174,12 @@ class Call:
 
     async def join_chat(self, chat_id, attempts=1):
         max_attempts = len(assistants) - 1
-        assistant = await get_assistant(chat_id)
+        userbot = await get_assistant(chat_id)
         try:
             language = await get_lang(chat_id)
             _ = get_string(language)
         except Exception:
-            _ = get_string("en")
+            _ = get_string("pt")
         try:
             chat = await app.get_chat(chat_id)
         except ChatAdminRequired:
@@ -190,17 +187,17 @@ class Call:
         except Exception as e:
             raise AssistantErr(_["call_3"].format(app.mention, type(e).__name__))
         if chat_id in links:
-            invite_link = links[chat_id]
+            invitelink = links[chat_id]
         else:
             if chat.username:
-                invite_link = chat.username
+                invitelink = chat.username
                 try:
-                    await assistant.resolve_peer(invite_link)
+                    await userbot.resolve_peer(invitelink)
                 except Exception:
                     pass
             else:
                 try:
-                    invite_link = await app.export_chat_invite_link(chat_id)
+                    invitelink = await app.export_chat_invite_link(chat_id)
                 except ChatAdminRequired:
                     raise AssistantErr(_["call_1"])
                 except Exception as e:
@@ -208,18 +205,18 @@ class Call:
                         _["call_3"].format(app.mention, type(e).__name__)
                     )
 
-            if invite_link.startswith("https://t.me/+"):
-                invite_link = invite_link.replace(
+            if invitelink.startswith("https://t.me/+"):
+                invitelink = invitelink.replace(
                     "https://t.me/+", "https://t.me/joinchat/"
                 )
-            links[chat_id] = invite_link
+            links[chat_id] = invitelink
 
         try:
             await asyncio.sleep(1)
-            await assistant.join_chat(invite_link)
+            await userbot.join_chat(invitelink)
         except InviteRequestSent:
             try:
-                await app.approve_chat_join_request(chat_id, assistant.id)
+                await app.approve_chat_join_request(chat_id, userbot.id)
             except Exception as e:
                 raise AssistantErr(_["call_3"].format(type(e).__name__))
             await asyncio.sleep(1)
@@ -229,7 +226,7 @@ class Call:
         except ChannelsTooMuch:
             if attempts <= max_attempts:
                 attempts += 1
-                assistant = await set_assistant(chat_id)
+                userbot = await set_assistant(chat_id)
                 return await self.join_chat(chat_id, attempts)
             else:
                 raise AssistantErr(_["call_9"].format(config.SUPPORT_GROUP))
@@ -242,7 +239,7 @@ class Call:
             else:
                 if attempts <= max_attempts:
                     attempts += 1
-                    assistant = await set_assistant(chat_id)
+                    userbot = await set_assistant(chat_id)
                     return await self.join_chat(chat_id, attempts)
 
                 raise AssistantErr(_["call_10"].format(time))
@@ -250,12 +247,12 @@ class Call:
             raise AssistantErr(_["call_3"].format(type(e).__name__))
 
     async def join_call(
-        self,
-        chat_id: int,
-        original_chat_id: int,
-        link,
-        video: Union[bool, str] = None,
-        image: Union[bool, str] = None,
+            self,
+            chat_id: int,
+            original_chat_id: int,
+            link,
+            video: Union[bool, str] = None,
+            image: Union[bool, str] = None,
     ):
         assistant = await group_assistant(self, chat_id)
         audio_stream_quality = await get_audio_bitrate(chat_id)
@@ -300,9 +297,10 @@ class Call:
                     "**No Active Voice Chat Found**\n\nPlease make sure group's voice chat is enabled. If already enabled, please end it and start fresh voice chat again and if the problem continues, try /restart"
                 )
 
-        except AlreadyJoinedError:
+        except NoActiveGroupCall:
             raise AssistantErr(
-                "**ASSISTANT IS ALREADY IN VOICECHAT **\n\nMusic bot system detected that assistant is already in the voicechat, if the problem continues restart the videochat and try again."
+                "**No Active Voice Chat Found**\n\nPlease make sure group's voice chat is enabled. If already enabled, please end it and start fresh voice chat again and if the problem continues, try /restart"
+
             )
         except TelegramServerError:
             raise AssistantErr(
@@ -503,6 +501,7 @@ class Call:
                     image = None
                 elif videoid == "soundcloud":
                     image = None
+
                 elif "saavn" in videoid:
                     url = check[0].get("url")
                     details = await Platform.saavn.info(url)
@@ -614,12 +613,15 @@ class Call:
         for call in self.calls:
 
             @call.on_update(filters.chat_update(ChatUpdate.Status.LEFT_CALL))
-            async def stream_services_handler(client, update):
+            async def stream_services_handler(client, update: ChatUpdate):
                 await self.stop_stream(update.chat_id)
 
-            @call.on_update(filters.stream_end)
-            async def stream_end_handler(client, update: Update):
-                if not isinstance(update, StreamAudioEnded):
+            @call.on_update(filters.stream_end())
+            async def stream_end_handler(client, update: StreamEnded):
+                if update.stream_type not in [
+                    StreamEnded.Type.AUDIO,
+                    StreamEnded.Type.VIDEO,
+                ]:
                     return
                 await self.change_stream(client, update.chat_id)
 
