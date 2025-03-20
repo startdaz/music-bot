@@ -3,16 +3,23 @@ import uvloop
 uvloop.install()
 
 import asyncio
-
-import os
 import importlib.util
-
+import os
 import traceback
 from datetime import datetime
 from functools import wraps
 
 from pyrogram import Client, StopPropagation, errors
 from pyrogram.enums import ChatMemberStatus
+from pyrogram.errors import (
+    ChatSendMediaForbidden,
+    ChatSendPhotosForbidden,
+    ChatWriteForbidden,
+    FloodWait,
+    MessageIdInvalid,
+    MessageNotModified,
+)
+from pyrogram.handlers import MessageHandler
 from pyrogram.types import (
     BotCommand,
     BotCommandScopeAllChatAdministrators,
@@ -21,15 +28,6 @@ from pyrogram.types import (
     BotCommandScopeChat,
     BotCommandScopeChatMember,
 )
-from pyrogram.errors import (
-    FloodWait,
-    MessageNotModified,
-    MessageIdInvalid,
-    ChatSendMediaForbidden,
-    ChatSendPhotosForbidden,
-    ChatWriteForbidden,
-)
-from pyrogram.handlers import MessageHandler
 
 import config
 
@@ -55,11 +53,11 @@ class WinxBot(Client):
                     )
                     await asyncio.sleep(e.value)
                 except (
-                    ChatWriteForbidden,
-                    ChatSendMediaForbidden,
-                    ChatSendPhotosForbidden,
-                    MessageNotModified,
-                    MessageIdInvalid,
+                        ChatWriteForbidden,
+                        ChatSendMediaForbidden,
+                        ChatSendPhotosForbidden,
+                        MessageNotModified,
+                        MessageIdInvalid,
                 ):
                     pass
                 except StopPropagation:
@@ -73,20 +71,16 @@ class WinxBot(Client):
                         if message.chat.username
                         else "Private Group"
                     )
-                    command = (
-                        " ".join(message.command)
-                        if hasattr(message, "command")
-                        else message.text
-                    )
+                    command = message.text
                     error_trace = traceback.format_exc()
                     error_message = (
-                        f"**Error:** {type(e).__name__}\n"
-                        f"**Date:** {date_time}\n"
-                        f"**Chat ID:** {chat_id}\n"
-                        f"**Chat Username:** {chat_username}\n"
-                        f"**User ID:** {user_id}\n"
-                        f"**Command/Text:** {command}\n"
-                        f"**Traceback:**\n{error_trace}"
+                        f"<b>Error:</b> {type(e).__name__}\n"
+                        f"<b>Date:</b> {date_time}\n"
+                        f"<b>Chat ID:</b> {chat_id}\n"
+                        f"<b>Chat Username:</b> {chat_username}\n"
+                        f"<b>User ID:</b> {user_id}\n"
+                        f"<b>Command/Text:</b>\n<pre language='python'><code>{command}</code></pre>\n\n"
+                        f"<b>Traceback:</b>\n<pre language='python'><code>{error_trace}</code></pre>"
                     )
                     await self.send_message(config.LOG_GROUP_ID, error_message)
                     try:
@@ -105,13 +99,18 @@ class WinxBot(Client):
         get_me = await self.get_me()
         self.username = get_me.username
         self.id = get_me.id
-        self.name = f"{get_me.first_name} {get_me.last_name or ''}"
+        self.name = get_me.full_name
         self.mention = get_me.mention
 
         try:
             await self.send_message(
                 config.LOG_GROUP_ID,
-                text=f"🚀 <u><b>{self.mention} Bot Iniciado :</b></u>\n\n🆔 <b>ID</b>: <code>{self.id}</code>\n📛 <b>Nome</b>: {self.name}\n🔗 <b>Nome de usuário:</b> @{self.username}",
+                text=(
+                    f"<u><b>{self.mention} Bot Started :</b></u>\n\n"
+                    f"Id : <code>{self.id}</code>\n"
+                    f"Name : {self.name}\n"
+                    f"Username : @{self.username}"
+                ),
             )
         except (errors.ChannelInvalid, errors.PeerIdInvalid):
             LOGGER(__name__).error(
@@ -192,7 +191,7 @@ class WinxBot(Client):
         LOG_GROUP_ID = (
             f"@{config.LOG_GROUP_ID}"
             if isinstance(config.LOG_GROUP_ID, str)
-            and not config.LOG_GROUP_ID.startswith("@")
+               and not config.LOG_GROUP_ID.startswith("@")
             else config.LOG_GROUP_ID
         )
 
