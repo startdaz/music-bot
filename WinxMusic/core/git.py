@@ -62,7 +62,7 @@ def git():
 
         try:
             repo.create_remote("origin", config.UPSTREAM_REPO)
-        except BaseException:
+        except Exception:
             pass
 
     nrs = repo.remote("origin")
