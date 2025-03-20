@@ -5,7 +5,7 @@ from pyrogram.types import InlineKeyboardButton
 from WinxMusic.utils.formatters import time_to_seconds
 
 
-def get_progress_bar(percentage: float):
+def get_progress_bar(percentage):
     umm = math.floor(percentage)
 
     if 0 < umm <= 10:
@@ -32,7 +32,7 @@ def get_progress_bar(percentage: float):
         return "▱▱▱▱▱▱▱▱▱"
 
 
-def stream_markup_timer(_, videoid: str, chat_id: int, played: str, dur: str):
+def stream_markup_timer(_, videoid, chat_id, played, dur):
     played_sec = time_to_seconds(played)
     duration_sec = time_to_seconds(dur)
     percentage = (played_sec / duration_sec) * 100
@@ -253,6 +253,11 @@ def panel_markup_1(_, videoid, chat_id):
         [
             InlineKeyboardButton(text="⏯ Skip", callback_data=f"ADMIN Skip|{chat_id}"),
             InlineKeyboardButton(text="⏹ Stop", callback_data=f"ADMIN Stop|{chat_id}"),
+        ],
+        [
+            InlineKeyboardButton(
+                text="🔁 Replay ", callback_data=f"ADMIN Replay|{chat_id}"
+            ),
         ],
         [
             InlineKeyboardButton(
