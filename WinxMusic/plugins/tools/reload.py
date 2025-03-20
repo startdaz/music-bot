@@ -1,4 +1,4 @@
-from pyrogram import filters, Client
+from pyrogram import filters
 from pyrogram.enums import ChatMembersFilter
 from pyrogram.types import Message
 
@@ -7,14 +7,12 @@ from WinxMusic.utils.database import get_authuser_names
 from WinxMusic.utils.decorators import language
 from WinxMusic.utils.formatters import alpha_to_int
 from config import BANNED_USERS, adminlist
-from strings import get_command
-
-RELOAD_COMMAND = get_command("RELOAD_COMMAND")
+from strings import command
 
 
-@app.on_message(filters.command(RELOAD_COMMAND) & filters.group & ~BANNED_USERS)
+@app.on_message(command("RELOAD_COMMAND") & filters.group & ~BANNED_USERS)
 @language
-async def reload_admin_cache(_client: Client, message: Message, _):
+async def reload_admin_cache(client, message: Message, _):
     try:
         chat_id = message.chat.id
         admins = app.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS)
