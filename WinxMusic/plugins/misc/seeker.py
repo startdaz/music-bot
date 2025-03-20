@@ -6,6 +6,8 @@ from pyrogram.types import InlineKeyboardMarkup
 
 from WinxMusic.core.call import Winx
 from WinxMusic.misc import db
+from WinxMusic.plugins.admins.callback import wrong
+from WinxMusic.plugins.misc.autoleave import autoend
 from WinxMusic.utils.database import (
     get_active_chats,
     get_assistant,
@@ -16,8 +18,6 @@ from WinxMusic.utils.database import (
 from WinxMusic.utils.formatters import seconds_to_min
 from WinxMusic.utils.inline import stream_markup_timer, telegram_markup_timer
 from strings import get_string
-from .autoleave import autoend
-from ..admins.callback import wrong
 
 checker = {}
 muted = {}
