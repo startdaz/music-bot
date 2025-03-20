@@ -1,7 +1,7 @@
-from youtubesearchpython.__future__ import VideosSearch
+from py_yt import VideosSearch
 
 
-async def gen_thumb(videoid: str) -> str:
+async def gen_thumb(videoid):
     try:
         query = f"https://www.youtube.com/watch?v={videoid}"
         results = VideosSearch(query, limit=1)
@@ -12,7 +12,7 @@ async def gen_thumb(videoid: str) -> str:
         return f"https://img.youtube.com/vi/{videoid}/maxresdefault.jpg"
 
 
-async def gen_qthumb(vidid: str):
+async def gen_qthumb(vidid):
     try:
         query = f"https://www.youtube.com/watch?v={vidid}"
         results = VideosSearch(query, limit=1)
