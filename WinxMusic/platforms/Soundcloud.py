@@ -1,8 +1,9 @@
 from os import path
-from typing import Any
+from typing import Union
 
 from yt_dlp import YoutubeDL
 
+from WinxMusic.utils.decorators import asyncify
 from WinxMusic.utils.formatters import seconds_to_min
 
 
@@ -16,25 +17,23 @@ class SoundCloud:
             "continuedl": True,
         }
 
-    async def valid(self, link: str):
-        if "soundcloud" in link:
-            return True
-        else:
-            return False
+    async def valid(self, link: str) -> bool:
+        return "soundcloud" in link
 
-    async def download(self, url) -> bool | tuple[dict[str, str | Any], str]:
-        d = YoutubeDL(self.opts)
-        try:
-            info = d.extract_info(url)
-        except Exception:
-            return False
-        xyz = path.join("downloads", f"{info['id']}.{info['ext']}")
-        duration_min = seconds_to_min(info["duration"])
-        track_details = {
-            "title": info["title"],
-            "duration_sec": info["duration"],
-            "duration_min": duration_min,
-            "uploader": info["uploader"],
-            "filepath": xyz,
-        }
-        return track_details, xyz
+    @asyncify
+    def download(self, url: str) -> Union[dict, bool]:
+        with YoutubeDL(self.opts):
+            try:
+                info = d.extract_info(url)
+            except Exception:
+                return False
+            xyz = path.join("downloads", f"{info['id']}.{info['ext']}")
+            duration_min = seconds_to_min(info["duration"])
+            track_details = {
+                "title": info["title"],
+                "duration_sec": info["duration"],
+                "duration_min": duration_min,
+                "uploader": info["uploader"],
+                "filepath": xyz,
+            }
+            return track_details, xyz
