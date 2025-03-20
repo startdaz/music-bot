@@ -1,20 +1,23 @@
-from pyrogram import filters, Client
+from pyrogram import filters
 from pyrogram.enums import ChatMembersFilter, ChatMemberStatus, ChatType
 from pyrogram.errors import ChatAdminRequired
 from pyrogram.types import Message
 
 from WinxMusic import app
-from WinxMusic.utils.database import set_cmode
+from WinxMusic.utils.database import get_lang, set_cmode
 from WinxMusic.utils.decorators.admins import admin_actual
 from config import BANNED_USERS
-from strings import get_command
-
-CHANNELPLAY_COMMAND = get_command("CHANNELPLAY_COMMAND")
+from strings import command, get_command
 
 
-@app.on_message(filters.command(CHANNELPLAY_COMMAND) & filters.group & ~BANNED_USERS)
+@app.on_message(command("CHANNELPLAY_COMMAND") & filters.group & ~BANNED_USERS)
 @admin_actual
-async def playmode_(_client: Client, message: Message, _):
+async def playmode_(client, message: Message, _):
+    try:
+        lang_code = await get_lang(message.chat.id)
+        CHANNELPLAY_COMMAND = get_command(lang_code)["CHANNELPLAY_COMMAND"]
+    except Exception:
+        CHANNELPLAY_COMMAND = get_command("pt")["CHANNELPLAY_COMMAND"]
     if len(message.command) < 2:
         return await message.reply_text(
             _["cplay_1"].format(message.chat.title, CHANNELPLAY_COMMAND[0])
