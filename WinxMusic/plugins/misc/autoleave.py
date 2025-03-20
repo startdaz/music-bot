@@ -48,21 +48,18 @@ async def auto_leave():
             except Exception:
                 pass
 
-        while not await asyncio.sleep(config.AUTO_LEAVE_ASSISTANT_TIME):
+        if config.AUTO_LEAVING_ASSISTANT == str(True):
+            await asyncio.sleep(config.AUTO_LEAVE_ASSISTANT_TIME)
             tasks = []
             for num in assistants:
                 client = await get_client(num)
                 tasks.append(leave_inactive_chats(client))
-
-            # Using asyncio.gather for running the leave_inactive_chats and same time for all assistant
             await asyncio.gather(*tasks)
 
 
 async def auto_end():
-    while True:
+    if await is_autoend():
         await asyncio.sleep(30)
-        if not await is_autoend():
-            continue
         for chat_id, timer in list(autoend.items()):
             if datetime.now() > timer:
                 if not await is_active_chat(chat_id):
@@ -83,6 +80,7 @@ async def auto_end():
                     except Exception:
                         pass
                     continue
+
                 if len(members) <= 1:
                     try:
                         await Winx.stop_stream(chat_id)
@@ -105,5 +103,10 @@ async def auto_end():
                 del autoend[chat_id]
 
 
-asyncio.create_task(auto_leave(), name="autoleave")
-asyncio.create_task(auto_end(), name="autoend")
+async def do_and_do():
+    while True:
+        await asyncio.gather(auto_leave(), auto_end())
+        await asyncio.sleep(1)
+
+
+asyncio.create_task(do_and_do())
