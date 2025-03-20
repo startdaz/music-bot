@@ -1,21 +1,20 @@
-from pyrogram import filters, Client
 from pyrogram.types import Message
 
 from WinxMusic import app
 from WinxMusic.misc import SUDOERS
-from WinxMusic.utils.database import blacklist_chat, blacklisted_chats, whitelist_chat
+from WinxMusic.utils.database import (
+    blacklist_chat,
+    blacklisted_chats,
+    whitelist_chat,
+)
 from WinxMusic.utils.decorators.language import language
 from config import BANNED_USERS
-from strings import get_command
-
-BLACKLISTCHAT_COMMAND = get_command("BLACKLISTCHAT_COMMAND")
-WHITELISTCHAT_COMMAND = get_command("WHITELISTCHAT_COMMAND")
-BLACKLISTEDCHAT_COMMAND = get_command("BLACKLISTEDCHAT_COMMAND")
+from strings import command
 
 
-@app.on_message(filters.command(BLACKLISTCHAT_COMMAND) & SUDOERS)
+@app.on_message(command("BLACKLISTCHAT_COMMAND") & SUDOERS)
 @language
-async def blacklist_chat_func(_client: Client, message: Message, _):
+async def blacklist_chat_func(client, message: Message, _):
     if len(message.command) != 2:
         return await message.reply_text(_["black_1"])
     chat_id = int(message.text.strip().split()[1])
@@ -25,14 +24,14 @@ async def blacklist_chat_func(_client: Client, message: Message, _):
     if blacklisted:
         await message.reply_text(_["black_3"])
     else:
-        await message.reply_text("⚠️ Algo deu errado.")
+        await message.reply_text("sᴏᴍᴇᴛʜɪɴɢ ᴡʀᴏɴɢ ʜᴀᴘᴘᴇɴᴇᴅ.")
     try:
         await app.leave_chat(chat_id)
     except Exception:
         pass
 
 
-@app.on_message(filters.command(WHITELISTCHAT_COMMAND) & SUDOERS)
+@app.on_message(command("WHITELISTCHAT_COMMAND") & SUDOERS)
 @language
 async def white_funciton(client, message: Message, _):
     if len(message.command) != 2:
@@ -46,7 +45,7 @@ async def white_funciton(client, message: Message, _):
     await message.reply_text("Something wrong happened")
 
 
-@app.on_message(filters.command(BLACKLISTEDCHAT_COMMAND) & ~BANNED_USERS)
+@app.on_message(command("BLACKLISTEDCHAT_COMMAND") & ~BANNED_USERS)
 @language
 async def all_chats(client, message: Message, _):
     text = _["black_7"]
