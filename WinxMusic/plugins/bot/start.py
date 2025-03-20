@@ -2,7 +2,7 @@ import asyncio
 import time
 
 from py_yt import VideosSearch
-from pyrogram import filters
+from pyrogram import filters, Client
 from pyrogram.enums import ChatType, ParseMode
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
@@ -229,7 +229,7 @@ async def start_comm(client, message: Message, _):
             )
 
 
-@app.on_message(filters.command(START_COMMAND, PREFIXES) & filters.group & ~BANNED_USERS)
+@app.on_message(command("START_COMMAND") & filters.group & ~BANNED_USERS)
 @language_start
 async def testbot(_client: Client, message: Message, _):
     uptime = int(time.time() - _boot_)
