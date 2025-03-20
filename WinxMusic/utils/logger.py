@@ -33,6 +33,6 @@ async def play_logs(message: Message, streamtype: str):
                     text=logger_text,
                     disable_web_page_preview=True,
                 )
-            except Exception as e:
-                print(e)
+            except Exception:
+                pass
         return
