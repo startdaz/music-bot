@@ -4,11 +4,13 @@ Last Updated: 2024-10-30
 
 ## 1. Introduction
 
-Welcome to Flora Music ("we," "our," or "bot"). This privacy policy explains how we collect, use, store, and protect your information when you use our Telegram bot service.
+Welcome to Flora Music ("we," "our," or "bot"). This privacy policy explains how we collect, use, store, and protect
+your information when you use our Telegram bot service.
 
 ## 2. Information We Collect
 
 ### 2.1 Automatically Collected Information:
+
 - Telegram User ID
 - Chat/Group IDs where the bot is used
 - Basic chat interaction data
@@ -16,6 +18,7 @@ Welcome to Flora Music ("we," "our," or "bot"). This privacy policy explains how
 - Voice chat participation data
 
 ### 2.2 User-Provided Information:
+
 - Playlists created by users
 - Music preferences and playback history
 - Custom settings and configurations
@@ -23,6 +26,7 @@ Welcome to Flora Music ("we," "our," or "bot"). This privacy policy explains how
 - Authentication permissions in groups
 
 ### 2.3 Technical Information:
+
 - Bot usage statistics
 - Error logs for troubleshooting
 - Performance metrics
@@ -30,6 +34,7 @@ Welcome to Flora Music ("we," "our," or "bot"). This privacy policy explains how
 ## 3. How We Use Your Information
 
 We use the collected information to:
+
 - Provide music streaming services
 - Maintain user playlists
 - Process voice chat requests
@@ -49,6 +54,7 @@ We use the collected information to:
 ## 5. Data Sharing and Disclosure
 
 We do not share your personal information with third parties except:
+
 - When required by law
 - To protect our rights and services
 - With your explicit consent
@@ -56,6 +62,7 @@ We do not share your personal information with third parties except:
 ## 6. User Rights
 
 You have the right to:
+
 - Access your personal data
 - Request data export
 - Delete your data
@@ -75,20 +82,23 @@ Our service is not intended for users under 13. We do not knowingly collect info
 
 ## 9. Changes to Privacy Policy
 
-We may update this privacy policy occasionally. Users will be notified of significant changes through the bot or support channel.
+We may update this privacy policy occasionally. Users will be notified of significant changes through the bot or support
+channel.
 
 ## 10. Data Management
 
 Users can manage their data through these commands:
+
 - /privacy - View privacy options
-  - Use inline buttons to:
-    - Export personal data
-    - Delete account data
-    - View privacy policy
+    - Use inline buttons to:
+        - Export personal data
+        - Delete account data
+        - View privacy policy
 
 ## 11. Technical Features
 
 The bot includes:
+
 - Automatic file cleanup
 - Rate limiting to prevent abuse
 - Secure command handling
@@ -98,18 +108,21 @@ The bot includes:
 ## 12. Specific Data Usage
 
 ### 12.1 Music Features:
+
 - Playlist data storage
 - Stream history tracking
 - Music preferences
 - Queue management
 
 ### 12.2 Chat Management:
+
 - Authorization levels
 - User permissions
 - Group settings
 - Command access control
 
 ### 12.3 Bot Statistics:
+
 - Command usage metrics
 - Performance monitoring
 - Error tracking
@@ -118,6 +131,7 @@ The bot includes:
 ## 13. Contact Information
 
 For privacy-related questions or concerns:
+
 - [Support Group](https://t.me/TheTeamVk)
 - [Updates Channel](https://t.me/TheTeamVivek)
 - [GitHub](https://github.com/TheTeamVivek/FloraMusic)
@@ -125,6 +139,7 @@ For privacy-related questions or concerns:
 ## 14. Compliance
 
 This bot adheres to:
+
 - Telegram's Terms of Service
 - MIT License requirements
 - Data protection best practices
@@ -133,6 +148,7 @@ This bot adheres to:
 ## 15. Additional Features
 
 Our privacy measures extend to:
+
 - Multi-assistant support
 - Playlist management
 - Voice chat handling
@@ -144,6 +160,7 @@ Our privacy measures extend to:
 ## 16. Data Processing
 
 We process data for:
+
 - Music streaming and playback
 - Playlist management
 - User authentication
@@ -155,6 +172,7 @@ We process data for:
 ## 17. Third-Party Services
 
 We interact with:
+
 - YouTube
 - Saavn
 - Spotify
@@ -167,6 +185,7 @@ We interact with:
 ## 18. Security Measures
 
 We implement:
+
 - Secure data storage
 - Encrypted communications
 - Access control systems
@@ -177,8 +196,10 @@ We implement:
 
 ## 19. Disclaimer
 
-While we implement security measures to protect user data, no internet-based service can guarantee absolute security. Users are responsible for maintaining the security of their Telegram accounts.
+While we implement security measures to protect user data, no internet-based service can guarantee absolute security.
+Users are responsible for maintaining the security of their Telegram accounts.
 
 ## 20. Acknowledgments
 
-Flora Music is built with privacy and security in mind, ensuring user data protection while providing high-quality music streaming services.
+Flora Music is built with privacy and security in mind, ensuring user data protection while providing high-quality music
+streaming services.
