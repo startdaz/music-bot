@@ -1,9 +1,7 @@
+import asyncio
 import os
-import re
-import subprocess
 import sys
 import traceback
-from inspect import getfullargspec
 from io import StringIO
 from time import time
 
@@ -12,7 +10,14 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from WinxMusic import app
 from WinxMusic.misc import SUDOERS
-from strings import get_command
+
+
+## -------- end of required imports to run this script
+
+## ------ Below are some optional Imports you can remove it if is imported  you don't need to import it when using eval command
+
+
+## end
 
 
 async def aexec(code, client, message):
@@ -27,12 +32,6 @@ async def aexec(code, client, message):
     return await __aexec_func(client, message)
 
 
-async def edit_or_reply(msg: Message, **kwargs):
-    func = msg.edit_text if msg.from_user.is_self else msg.reply
-    spec = getfullargspec(func.__wrapped__).args
-    await func(**{k: v for k, v in kwargs.items() if k in spec})
-
-
 @app.on_edited_message(
     filters.command(["ev", "eval"]) & SUDOERS & ~filters.forwarded & ~filters.via_bot
 )
@@ -41,7 +40,7 @@ async def edit_or_reply(msg: Message, **kwargs):
 )
 async def executor(client: app, message: Message):
     if len(message.command) < 2:
-        return await edit_or_reply(message, text="<b>Give me something to exceute</b>")
+        return await message.reply(text="<b>Give me something to exceute</b>")
     try:
         cmd = message.text.split(" ", maxsplit=1)[1]
     except IndexError:
@@ -109,7 +108,7 @@ async def executor(client: app, message: Message):
                 ]
             ]
         )
-        await edit_or_reply(message, text=final_output, reply_markup=keyboard)
+        await message.reply(text=final_output, reply_markup=keyboard)
 
 
 @app.on_callback_query(filters.regex(r"runtime"))
@@ -143,88 +142,59 @@ async def forceclose_command(_, CallbackQuery):
 @app.on_message(filters.command("sh") & SUDOERS & ~filters.forwarded & ~filters.via_bot)
 async def shellrunner(_, message: Message):
     if len(message.command) < 2:
-        return await edit_or_reply(
-            message, text="<b>Give some commamds like:</b>\n/sh git pull"
-        )
+        return await message.reply("<b>Give some commands like:</b>\n/sh git pull")
+
     text = message.text.split(None, 1)[1]
-    if "\n" in text:
-        code = text.split("\n")
-        output = ""
-        for x in code:
-            shell = re.split(""" (?=(?:[^'"]|'[^']*'|"[^"]*")*$)""", x)
-            try:
-                process = subprocess.Popen(
-                    shell,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                )
-            except Exception as err:
-                await edit_or_reply(message, text=f"<b>ERROR :</b>\n<pre>{err}</pre>")
-            output += f"<b>{code}</b>\n"
-            output += process.stdout.read()[:-1].decode("utf-8")
-            output += "\n"
-    else:
-        shell = re.split(""" (?=(?:[^'"]|'[^']*'|"[^"]*")*$)""", text)
-        for a in range(len(shell)):
-            shell[a] = shell[a].replace('"', "")
+    output = ""
+
+    async def run_command(command):
         try:
-            process = subprocess.Popen(
-                shell,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+            process = await asyncio.create_subprocess_shell(
+                command,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
             )
+            stdout, stderr = await process.communicate()
+            return stdout.decode().strip(), stderr.decode().strip()
         except Exception as err:
-            print(err)
             exc_type, exc_obj, exc_tb = sys.exc_info()
             errors = traceback.format_exception(
                 etype=exc_type,
                 value=exc_obj,
                 tb=exc_tb,
             )
-            return await edit_or_reply(
-                message, text=f"<b>ERROR :</b>\n<pre>{''.join(errors)}</pre>"
-            )
-        output = process.stdout.read()[:-1].decode("utf-8")
-    if str(output) == "\n":
-        output = None
-    if output:
-        if len(output) > 4096:
-            with open("output.txt", "w+") as file:
-                file.write(output)
-            await app.send_document(
-                message.chat.id,
-                "output.txt",
-                reply_to_message_id=message.id,
-                caption="<code>Output</code>",
-            )
-            return os.remove("output.txt")
-        await edit_or_reply(message, text=f"<b>OUTPUT :</b>\n<pre>{output}</pre>")
+            return None, "".join(errors)
+
+    if "\n" in text:
+        commands = text.split("\n")
+        for cmd in commands:
+            stdout, stderr = await run_command(cmd)
+            output += f"<b>Command:</b> {cmd}\n"
+            if stdout:
+                output += f"<b>Output:</b>\n<pre>{stdout}</pre>\n"
+            if stderr:
+                output += f"<b>Error:</b>\n<pre>{stderr}</pre>\n"
     else:
-        await edit_or_reply(message, text="<b>OUTPUT :</b>\n<code>None</code>")
+        stdout, stderr = await run_command(text)
+        if stdout:
+            output += f"<b>Output:</b>\n<pre>{stdout}</pre>\n"
+        if stderr:
+            output += f"<b>Error:</b>\n<pre>{stderr}</pre>\n"
+
+    if not output.strip():
+        output = "<b>OUTPUT :</b>\n<code>None</code>"
+
+    if len(output) > 4096:
+        with open("output.txt", "w+") as file:
+            file.write(output)
+        await app.send_document(
+            message.chat.id,
+            "output.txt",
+            reply_to_message_id=message.id,
+            caption="<code>Output</code>",
+        )
+        os.remove("output.txt")
+    else:
+        await message.reply(text=output)
 
     await message.stop_propagation()
-
-
-def command(cmd: str):
-    cmds = " ".join([f"/{c}" for c in get_command(cmd)])
-    return cmds
-
-
-__MODULE__ = "Dev"
-__HELP__ = f"""
-<b><u>Adicionar e remover sudoers:</u></b>
-
-<b>{command("ADDSUDO_COMMAND")} [Nome de usuário ou responder a um usuário] - Adicionar sudo ao seu bot</b>
-<b>{command("DELSUDO_COMMAND")} [Nome de usuário, ID do usuário ou responder a um usuário] - Remover dos sudoers do bot</b>
-<b>{command("SUDOUSERS_COMMAND")} - Obter uma lista de todos os sudoers</b>
-
-<b><u>Comandos do Bot:</u></b>
-
-<b>{command("RESTART_COMMAND")}</b> - Reiniciar o bot (apenas SUDOERS)
-<b>{command("UPDATE_COMMAND")}</b> - Atualizar o bot
-<b>{command("SPEEDTEST_COMMAND")}</b> - Verificar a velocidade do servidor
-<b>{command("MAINTENANCE_COMMAND")} [ativar / desativar]</b> - Ativar ou desativar o modo de manutenção do bot
-<b>{command("LOGGER_COMMAND")} [ativar / desativar]</b> - Ativar ou desativar o registro de consultas pesquisadas no grupo de logs
-<b>{command("GETLOG_COMMAND")} [Número de linhas]</b> - Obter logs do servidor
-<b>{command("AUTOEND_COMMAND")} [ativar / desativar]</b> - Encerrar automaticamente a transmissão após 30 segundos se ninguém estiver ouvindo músicas
-"""
