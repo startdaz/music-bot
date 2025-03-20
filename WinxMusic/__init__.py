@@ -25,7 +25,7 @@ userbot = Userbot()
 dirr()
 
 # Check Git Updates
-git()
+# git()
 
 # Initialize Memory DB
 dbb()
