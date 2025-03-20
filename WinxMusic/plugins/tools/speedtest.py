@@ -1,16 +1,10 @@
-import asyncio
-
-from pyrogram import filters
-
 import speedtest
 from WinxMusic import app
 from WinxMusic.misc import SUDOERS
-from strings import get_command
-
-SPEEDTEST_COMMAND = get_command("SPEEDTEST_COMMAND")
+from strings import command
 
 
-def testspeed(m):
+async def testspeed(m):
     try:
         test = speedtest.Speedtest()
         test.get_best_server()
@@ -26,7 +20,7 @@ def testspeed(m):
     return result
 
 
-@app.on_message(filters.command(SPEEDTEST_COMMAND) & SUDOERS)
+@app.on_message(command("SPEEDTEST_COMMAND") & SUDOERS)
 async def speedtest_function(client, message):
     m = await message.reply_text("🚀 **Iniciando SpeedTest**...")
     loop = asyncio.get_event_loop_policy().get_event_loop()
