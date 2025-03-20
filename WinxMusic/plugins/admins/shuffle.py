@@ -1,20 +1,18 @@
 import random
 
-from pyrogram import filters, Client
+from pyrogram import filters
 from pyrogram.types import Message
 
 from WinxMusic import app
 from WinxMusic.misc import db
 from WinxMusic.utils.decorators import admin_rights_check
-from config import BANNED_USERS, PREFIXES
-from strings import get_command
-
-SHUFFLE_COMMAND = get_command("SHUFFLE_COMMAND")
+from config import BANNED_USERS
+from strings import command
 
 
-@app.on_message(filters.command(SHUFFLE_COMMAND, PREFIXES) & filters.group & ~BANNED_USERS)
+@app.on_message(command("SHUFFLE_COMMAND") & filters.group & ~BANNED_USERS)
 @admin_rights_check
-async def admins(_client: Client, message: Message, _, chat_id: int):
+async def admins(Client, message: Message, _, chat_id):
     if not len(message.command) == 1:
         return await message.reply_text(_["general_2"])
     check = db.get(chat_id)
@@ -30,4 +28,4 @@ async def admins(_client: Client, message: Message, _, chat_id: int):
         return await message.reply_text(_["admin_22"])
     random.shuffle(check)
     check.insert(0, popped)
-    await message.reply_text(_["admin_23"].format(message.from_user.first_name))
+    await message.reply_text(_["admin_23"].format(message.from_user.mention))
