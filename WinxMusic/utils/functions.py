@@ -169,6 +169,10 @@ async def get_data_and_name(replied_message, message):
 
 
 async def extract_userid(message, text: str):
+    """
+    NOT TO BE USED OUTSIDE THIS FILE
+    """
+
     def is_int(text: str):
         try:
             int(text)
@@ -202,7 +206,6 @@ async def extract_user_and_reason(message, sender_chat=False):
     try:
         if message.reply_to_message:
             reply = message.reply_to_message
-            # se responder a uma mensagem e nenhuma razão for dada
             if not reply.from_user:
                 if (
                         reply.sender_chat
