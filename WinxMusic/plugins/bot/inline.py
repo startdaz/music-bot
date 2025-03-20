@@ -1,11 +1,9 @@
-from pyrogram import Client
+from py_yt import VideosSearch
 from pyrogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     InlineQueryResultPhoto,
-    InlineQuery,
 )
-from youtubesearchpython.__future__ import VideosSearch
 
 from WinxMusic import app
 from WinxMusic.utils.inlinequery import answer
@@ -13,7 +11,7 @@ from config import BANNED_USERS
 
 
 @app.on_inline_query(~BANNED_USERS)
-async def inline_query_handler(client: Client, query: InlineQuery):
+async def inline_query_handler(client, query):
     text = query.query.strip().lower()
     answers = []
     if text.strip() == "":
