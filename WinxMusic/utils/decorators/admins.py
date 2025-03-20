@@ -1,11 +1,6 @@
 from pyrogram import Client
 from pyrogram.enums import ChatMemberStatus, ChatType
-from pyrogram.types import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    Message,
-    CallbackQuery,
-)
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
 
 from WinxMusic import app
 from WinxMusic.misc import SUDOERS
@@ -113,7 +108,10 @@ def admin_actual(mystic: callable):
                     message.chat.id, message.from_user.id
                 )
 
-                if member.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER] or (
+                if member.status not in [
+                    ChatMemberStatus.ADMINISTRATOR,
+                    ChatMemberStatus.OWNER,
+                ] or (
                         member.privileges is None
                         or not member.privileges.can_manage_video_chats
                 ):
