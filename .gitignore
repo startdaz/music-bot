@@ -4,6 +4,7 @@
 .dev.env
 .cache
 Winxlogs.txt
+WinxLogs.txt
 .DS_Store
 *.session
 raw_files/
