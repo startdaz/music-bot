@@ -29,19 +29,24 @@ def get_command(lang: str = "pt") -> Union[str, List[str]]:
 
 
 def get_string(lang: str):
+    # Check if language exists and fallback to pt
+    if lang not in languages:
+        lang = "pt"
     return languages[lang]
 
 
 def get_helpers(lang: str):
+    if lang not in helpers:
+        lang = "pt"
     return helpers[lang]
 
 
 # Load English commands first and set English keys
-commands["pt"] = load_yaml_file(r"./strings/cmds/en.yml")
+commands["pt"] = load_yaml_file(r"./strings/cmds/pt.yml")
 english_keys = set(commands["pt"].keys())
 
 for filename in os.listdir(r"./strings/cmds/"):
-    if filename.endswith(".yml") and filename != "en.yml":
+    if filename.endswith(".yml") and filename != "pt.yml":
         language_code = filename[:-4]
         commands[language_code] = load_yaml_file(
             os.path.join(r"./strings/cmds/", filename)
@@ -62,11 +67,11 @@ for filename in os.listdir(r"./strings/helpers/"):
         )
 
 if "pt" not in languages:
-    languages["pt"] = load_yaml_file(r"./strings/langs/en.yml")
+    languages["pt"] = load_yaml_file(r"./strings/langs/pt.yml")
     languages_present["pt"] = languages["pt"]["name"]
 
 for filename in os.listdir(r"./strings/langs/"):
-    if filename.endswith(".yml") and filename != "en.yml":
+    if filename.endswith(".yml") and filename != "pt.yml":
         language_name = filename[:-4]
         languages[language_name] = load_yaml_file(
             os.path.join(r"./strings/langs/", filename)
@@ -92,9 +97,9 @@ if not commands:
 
 
 def command(
-    commands: Union[str, List[str]],
-    prefixes: Union[str, List[str], None] = "/",
-    case_sensitive: bool = False,
+        commands: Union[str, List[str]],
+        prefixes: Union[str, List[str], None] = "/",
+        case_sensitive: bool = False,
 ):
     async def func(flt, client: Client, message: Message):
         lang_code = await get_lang(message.chat.id)
@@ -105,7 +110,7 @@ def command(
 
         if not await is_maintenance():
             if (
-                message.from_user and message.from_user.id not in SUDOERS
+                    message.from_user and message.from_user.id not in SUDOERS
             ) or not message.from_user:
                 if message.chat.type == ChatType.PRIVATE:
                     await message.reply_text(_["maint_4"])
@@ -127,7 +132,7 @@ def command(
             elif isinstance(localized_cmd, list):
                 localized_commands.extend(localized_cmd)
 
-            en_cmd = get_command("pt")[cmd]
+            en_cmd = get_command("pt")[cmd]  # Using "pt" instead of "en"
             if isinstance(en_cmd, str):
                 en_commands.append(en_cmd)
             elif isinstance(en_cmd, list):
@@ -144,19 +149,19 @@ def command(
             if with_prefix and flt.prefixes:
                 for prefix in flt.prefixes:
                     if text.startswith(prefix):
-                        without_prefix = text[len(prefix) :]
+                        without_prefix = text[len(prefix):]
                         if re.match(
-                            rf"^(?:{cmd}(?:@?{username})?)(?:\s|$)",
-                            without_prefix,
-                            flags=re.IGNORECASE if not flt.case_sensitive else 0,
+                                rf"^(?:{cmd}(?:@?{username})?)(?:\s|$)",
+                                without_prefix,
+                                flags=re.IGNORECASE if not flt.case_sensitive else 0,
                         ):
                             return prefix + cmd
             else:
                 # Match without prefix
                 if re.match(
-                    rf"^(?:{cmd}(?:@?{username})?)(?:\s|$)",
-                    text,
-                    flags=re.IGNORECASE if not flt.case_sensitive else 0,
+                        rf"^(?:{cmd}(?:@?{username})?)(?:\s|$)",
+                        text,
+                        flags=re.IGNORECASE if not flt.case_sensitive else 0,
                 ):
                     return cmd
             return None
