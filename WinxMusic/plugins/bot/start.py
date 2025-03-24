@@ -234,8 +234,11 @@ async def start_comm(client, message: Message, _):
 async def testbot(_client: Client, message: Message, _):
     uptime = int(time.time() - _boot_)
     chat_id = message.chat.id
-    await message.reply_text(_["start_7"].format(get_readable_time(uptime)))
 
+    try:
+        await message.reply_text(_["start_7"].format(get_readable_time(uptime)))
+    except Exception:
+        await app.send_message(chat_id, _["start_7"].format(get_readable_time(uptime)))
     return await add_served_chat(message.chat.id)
 
 
