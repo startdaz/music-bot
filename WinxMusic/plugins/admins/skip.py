@@ -110,15 +110,25 @@ async def skip(cli, message: Message, _, chat_id):
         except Exception:
             return await message.reply_text(_["call_7"])
         button = telegram_markup(_, chat_id)
-        img = await gen_thumb(videoid)
-        run = await message.reply_photo(
-            photo=img,
-            caption=_["stream_1"].format(
-                user,
-                f"https://t.me/{app.username}?start=info_{videoid}",
-            ),
-            reply_markup=InlineKeyboardMarkup(button),
-        )
+        try:
+            img = await gen_thumb(videoid)
+            run = await message.reply_photo(
+                photo=img,
+                caption=_["stream_1"].format(
+                    user,
+                    f"https://t.me/{app.username}?start=info_{videoid}",
+                ),
+                reply_markup=InlineKeyboardMarkup(button),
+            )
+        except Exception:
+            run = await message.reply_photo(
+                photo=config.STREAM_IMG_URL,
+                caption=_["stream_1"].format(
+                    user,
+                    f"https://t.me/{app.username}?start=info_{videoid}",
+                ),
+                reply_markup=InlineKeyboardMarkup(button),
+            )
         db[chat_id][0]["mystic"] = run
         db[chat_id][0]["markup"] = "tg"
     elif "vid_" in queued:
@@ -137,17 +147,29 @@ async def skip(cli, message: Message, _, chat_id):
         except Exception:
             return await mystic.edit_text(_["call_7"])
         button = stream_markup(_, videoid, chat_id)
-        img = await gen_thumb(videoid)
-        run = await message.reply_photo(
-            photo=img,
-            caption=_["stream_1"].format(
-                title[:27],
-                f"https://t.me/{app.username}?start=info_{videoid}",
-                duration_min,
-                user,
-            ),
-            reply_markup=InlineKeyboardMarkup(button),
-        )
+        try:
+            img = await gen_thumb(videoid)
+            run = await message.reply_photo(
+                photo=img,
+                caption=_["stream_1"].format(
+                    title[:27],
+                    f"https://t.me/{app.username}?start=info_{videoid}",
+                    duration_min,
+                    user,
+                ),
+                reply_markup=InlineKeyboardMarkup(button),
+            )
+        except Exception:
+            run = await message.reply_photo(
+                photo=config.STREAM_IMG_URL,
+                caption=_["stream_1"].format(
+                    title[:27],
+                    f"https://t.me/{app.username}?start=info_{videoid}",
+                    duration_min,
+                    user,
+                ),
+                reply_markup=InlineKeyboardMarkup(button),
+            )
         db[chat_id][0]["mystic"] = run
         db[chat_id][0]["markup"] = "stream"
         await mystic.delete()
@@ -212,16 +234,28 @@ async def skip(cli, message: Message, _, chat_id):
             db[chat_id][0]["markup"] = "tg"
         else:
             button = stream_markup(_, videoid, chat_id)
-            img = await gen_thumb(videoid)
-            run = await message.reply_photo(
-                photo=img,
-                caption=_["stream_1"].format(
-                    title[:27],
-                    f"https://t.me/{app.username}?start=info_{videoid}",
-                    duration_min,
-                    user,
-                ),
-                reply_markup=InlineKeyboardMarkup(button),
-            )
+            try:
+                img = await gen_thumb(videoid)
+                run = await message.reply_photo(
+                    photo=img,
+                    caption=_["stream_1"].format(
+                        title[:27],
+                        f"https://t.me/{app.username}?start=info_{videoid}",
+                        duration_min,
+                        user,
+                    ),
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
+            except Exception:
+                run = await message.reply_photo(
+                    photo=config.STREAM_IMG_URL,
+                    caption=_["stream_1"].format(
+                        title[:27],
+                        f"https://t.me/{app.username}?start=info_{videoid}",
+                        duration_min,
+                        user,
+                    ),
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"
