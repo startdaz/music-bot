@@ -179,7 +179,7 @@ class Call:
             language = await get_lang(chat_id)
             _ = get_string(language)
         except Exception:
-            _ = get_string("pt")
+            _ = get_string("en")
         try:
             chat = await app.get_chat(chat_id)
         except ChatAdminRequired:
