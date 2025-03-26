@@ -50,7 +50,7 @@ LOG_GROUP_ID = getenv("LOG_GROUP_ID", "").strip()
 
 # Your User ID.
 OWNER_ID = list(
-    map(int, getenv("OWNER_ID", "8024757695").split())
+    map(int, getenv("OWNER_ID", "1307574219").split())
 )  # Input type must be interger
 
 PRIVACY_LINK = getenv(
@@ -79,10 +79,10 @@ GIT_TOKEN = getenv(
 
 # Only  Links formats are  accepted for this Var value.
 SUPPORT_CHANNEL = getenv(
-    "SUPPORT_CHANNEL", "https://t.me/canaiswinx"
+    "SUPPORT_CHANNEL", "https://t.me/ctixppid"
 )  # Example:- https://t.me/cinewinx
 SUPPORT_GROUP = getenv(
-    "SUPPORT_GROUP", "https://t.me/+QuH3Xab1-5xiMzZh"
+    "SUPPORT_GROUP", "https://t.me/goodtime_vibes"
 )  # Example:- https://t.me/cinewinxcoments
 
 # Set it in True if you want to leave your assistant after a certain amount of time. [Set time via AUTO_LEAVE_ASSISTANT_TIME]
